@@ -1,9 +1,8 @@
-# pyiikocloudapi
+# pyiikotransportapi
 
 
-iiko Transport это по сути горячие хранилище без доступа к данным БД
+iiko Transport по словам **разработчиков** это по сути горячие хранилище без доступа к данным БД
 
-    sourceKey это "Источник заказа" из настроек в iikoWeb
 
 
 
@@ -11,13 +10,13 @@ iiko Transport это по сути горячие хранилище без д�
 ### Инфо
 Все названия методов соответствуют названию в ссылке (смотрите документацию iiko Transport).
 
-**Пример названия метода получения маркера доступа:** _/api/1/auth/**`access_token`**_
+**Пример названия метода получения маркера доступа:** _/api/1/auth/**`access_token`**_ or _/api/1/order/create - **`order_create`**_
 
 `sourceKey` это "Источник заказа" из настроек в iikoWeb
 
 #### Example
-    from pyiikocloudapi import IikoTransport
-    from pyiikocloudapi.models import CouriersModel
+    from pyiikotransportapi import IikoTransport
+    from pyiikotransportapi.models import CouriersModel
 
     # инициализация класса 
     api = IikoTransport(api_login)
@@ -27,7 +26,6 @@ iiko Transport это по сути горячие хранилище без д�
 
     # получаю список курьеров организации
     couriers: CouriersModel = api.couriers(api.organizations_ids)
-    api.
 
 Каждый метод проверяет время жизни маркера доступа, если время жизни маркера прошло то будет автоматически запрошен заново.
 
@@ -51,8 +49,8 @@ iiko Transport это по сути горячие хранилище без д�
   - [ ] [Removal types (reasons for deletion).](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1removal_types/post)
   - [ ] [Get tips tipes for api-login`s rms group.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1tips_types/post)
 - Menu
-  - [ ] [Menu.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1nomenclature/post)
-  - [ ] [External menus with price categories.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~12~1menu/post)
+  - [x] [Menu.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1nomenclature/post)
+  - [x] [External menus with price categories.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~12~1menu/post)
   - [ ] [Retrieve external menu by ID.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~12~1menu~1by_id/post)
   - [ ] [Out-of-stock items.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1stop_lists/post)
   - [ ] [Get combos info](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1combo/post)

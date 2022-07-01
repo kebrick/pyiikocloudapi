@@ -707,7 +707,7 @@ class BaseNomenclatureModel(BaseResponseModel):
         return self.revision
 
 
-class BaseV2MenuModel(BaseResponseModel):
+class BaseMenuModel(BaseResponseModel):
     external_menus: Optional[List[IdNameModel]] = Field(alias="externalMenus")
     price_categories: Optional[List[IdNameModel]] = Field(alias="priceCategories")
 

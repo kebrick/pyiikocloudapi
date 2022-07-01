@@ -11,7 +11,7 @@ from pyiikotransportapi.exception import CheckTimeToken, SetSession, TokenExcept
 from pyiikotransportapi.models import OrganizationsModel, ErrorModel, CouriersModel, BaseResponseModel, ByIdModel, \
     ByDeliveryDateAndStatusModel, ByDeliveryDateAndSourceKeyAndFilter, BaseRegionsModel, BaseCitiesModel, \
     BaseStreetByCityModel, BaseTerminalGroupsModel, BaseTGIsAliveyModel, BaseCreatedDeliveryOrderInfoModel, \
-    BaseCreatedOrderInfoModel, BaseNomenclatureModel
+    BaseCreatedOrderInfoModel, BaseNomenclatureModel, BaseMenuModel
 
 
 class BaseAPI:
@@ -44,8 +44,6 @@ class BaseAPI:
         #     self.__set_token(working_token)
         # else:
         #     self.__get_access_token()
-
-
 
     def check_status_code_token(self, code: Union[str, int]):
         if str(code) == "401":
@@ -259,13 +257,12 @@ class Menu(BaseAPI):
             raise TypeError(self.__class__.__qualname__,
                             self.nomenclature.__name__,
                             f"Не удалось получить номенклатуру: \n{err}")
-    def menu(self,) -> Union[
-        ErrorModel, BaseMenuModel]:
+
+    def menu(self, ) -> Union[ErrorModel, BaseMenuModel]:
         try:
 
             return self._post_request(
                 url="/api/2/menu",
-                data=data,
                 model_response_data=BaseMenuModel
             )
         except requests.exceptions.RequestException as err:
