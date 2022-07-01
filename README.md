@@ -27,7 +27,7 @@ iiko Transport это по сути горячие хранилище без д�
 
     # получаю список курьеров организации
     couriers: CouriersModel = api.couriers(api.organizations_ids)
-    
+    api.
 
 Каждый метод проверяет время жизни маркера доступа, если время жизни маркера прошло то будет автоматически запрошен заново.
 
@@ -61,7 +61,7 @@ iiko Transport это по сути горячие хранилище без д�
 - Operations
   - [ ] [Get status of command.](https://api-ru.iiko.services/#tag/Operations/paths/~1api~11~1commands~1status/post)
 - Deliveries: Create and update
-  - [ ] [Create delivery.](https://api-ru.iiko.services/#tag/Deliveries:-Create-and-update/paths/~1api~11~1deliveries~1create/post)
+  - [x] [Create delivery.](https://api-ru.iiko.services/#tag/Deliveries:-Create-and-update/paths/~1api~11~1deliveries~1create/post)
   - [ ] [Update order problem.](https://api-ru.iiko.services/#tag/Deliveries:-Create-and-update/paths/~1api~11~1deliveries~1update_order_problem/post)
   - [x] [Update delivery status.](https://api-ru.iiko.services/#tag/Deliveries:-Create-and-update/paths/~1api~11~1deliveries~1update_order_delivery_status/post)
   - [ ] [Update order courier.](https://api-ru.iiko.services/#tag/Deliveries:-Create-and-update/paths/~1api~11~1deliveries~1update_order_courier/post)
@@ -107,7 +107,7 @@ iiko Transport это по сути горячие хранилище без д�
   - [ ] [Store order draft changes to DB.](https://api-ru.iiko.services/#tag/Drafts/paths/~1api~11~1deliveries~1drafts~1save/post)
   - [ ] [Admit order draft changes and send them to Front.](https://api-ru.iiko.services/#tag/Drafts/paths/~1api~11~1deliveries~1drafts~1commit/post)
 - Orders
-  - [ ] [Create order.](https://api-ru.iiko.services/#tag/Orders/paths/~1api~11~1order~1create/post)
+  - [x] [Create order.](https://api-ru.iiko.services/#tag/Orders/paths/~1api~11~1order~1create/post)
   - [ ] [Retrieve orders by IDs.](https://api-ru.iiko.services/#tag/Orders/paths/~1api~11~1order~1by_id/post)
   - [ ] [Retrieve orders by tables.](https://api-ru.iiko.services/#tag/Orders/paths/~1api~11~1order~1by_table/post)
   - [ ] [Add order items.](https://api-ru.iiko.services/#tag/Orders/paths/~1api~11~1order~1add_items/post)
