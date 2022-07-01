@@ -1,7 +1,7 @@
-# pyiikotransportapi
+# pyiikocloudapi
 
 
-iiko Transport по словам **разработчиков** это по сути горячие хранилище без доступа к данным БД
+iiko Transport(iiko Cloud API) по словам **разработчиков** это по сути горячие хранилище без доступа к данным БД
 
 
 
@@ -15,8 +15,8 @@ iiko Transport по словам **разработчиков** это по су
 `sourceKey` это "Источник заказа" из настроек в iikoWeb
 
 #### Example
-    from pyiikotransportapi import IikoTransport
-    from pyiikotransportapi.models import CouriersModel
+    from pyiikocloudapi import IikoTransport
+    from pyiikocloudapi.models import CouriersModel
 
     # инициализация класса 
     api = IikoTransport(api_login)
@@ -31,7 +31,7 @@ iiko Transport по словам **разработчиков** это по су
 
 **Время жизни маркера доступа равно ~60 минутам.**
 
-### Реализованные методы iiko Transport
+### Реализованные методы iiko Transport(iiko Cloud API) 
 - Authorization
   - [x] [Retrieve session key for API user.](https://api-ru.iiko.services/#tag/Authorization/paths/~1api~11~1access_token/post)
 - Notifications

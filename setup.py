@@ -4,20 +4,20 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 VERSION = '0.0.1'
 setup(
-    name='pyiikotransportapi',
+    name='pyiikocloudapi',
     version=VERSION,
     description='Python services for convenient work with iiko Transport',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=['pyiikotransportapi'],
+    packages=['pyiikocloudapi'],
     # packages=find_packages(where="src"),
     # package_dir={"": "src"},
     author='kebrick',
     author_email='ruban.kebr@gmail.com',
     license='MIT',
     project_urls={
-        'Source': 'https://github.com/kebrick/pyiikotransportapi',
-        'Tracker': 'https://github.com/kebrick/pyiikotransportapi/issues',
+        'Source': 'https://github.com/kebrick/pyiikocloupapi',
+        'Tracker': 'https://github.com/kebrick/pyiikocloupapi/issues',
     },
     install_requires=['requests', 'pydantic'],
 
