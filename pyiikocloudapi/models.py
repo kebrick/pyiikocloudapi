@@ -20,6 +20,10 @@ class ErrorModel(BaseResponseModel):
     error: Optional[str]
 
 
+class CustomErrorModel(ErrorModel):
+    status_code: Optional[str]
+
+
 class OrganizationsModel(BaseModel):
     name: str
     id: str
@@ -711,6 +715,7 @@ class BaseMenuModel(BaseResponseModel):
     external_menus: Optional[List[IdNameModel]] = Field(alias="externalMenus")
     price_categories: Optional[List[IdNameModel]] = Field(alias="priceCategories")
 
+
 class ICIAllergenGroupModel(IdNameModel):
     code: str
 
@@ -718,16 +723,56 @@ class ICIAllergenGroupModel(IdNameModel):
 class MBIdICTaxCategoryModel(IdNameModel):
     percentage: float
 
+
 class MBIdICISPriceModel(BaseModel):
     organization_id: str = Field(alias='organizationId')
     price: float
 
+
+class MBIdICISIMGRestrictionModel(BaseModel):
+    min_quantity: int
+    max_quantity: int
+    free_quantity: int
+    by_default: int
+
+
+class MBIdICISIMGItemModel(BaseModel):
+    prices: List[MBIdICISPriceModel]
+    sku: str
+    name: str
+    description: str
+    button_image: str = Field(alias='buttonImage')
+    restrictions: MBIdICISIMGRestrictionModel
+    allergen_groups: List[ICIAllergenGroupModel] = Field(alias='allergenGroups')
+    nutrition_per_hundred_grams: dict = Field(alias='nutritionPerHundredGrams')
+    portion_weight_grams: float = Field(alias='portionWeightGrams')
+    tags: List[IdNameModel]
+    item_id: str = Field(alias='itemId')
+
+
+class MBIdICISItemModifierGroupModel(BaseModel):
+    items: List[MBIdICISIMGItemModel]
+    name: str
+    description: str
+    restrictions: MBIdICISIMGRestrictionModel
+    can_be_divided: bool = Field(alias='canBeDivided')
+    item_group_id: str = Field(alias='itemGroupId')
+    child_modifiers_have_min_max_restrictions: bool = Field(alias="childModifiersHaveMinMaxRestrictions")
+    sku: str
+
+
 class MBIdICItemSizeModel(BaseModel):
     prices: MBIdICISPriceModel
-
+    item_modifier_groups: List[MBIdICISItemModifierGroupModel] = Field(alias='itemModifierGroups')
     sku: str
     size_code: str = Field(alias='sizeCode')
     size_name: str = Field(aliad='sizeName')
+    is_default: Optional[bool] = Field(alias="isDefault")
+    portion_weight_grams: float = Field(alias='portionWeightGrams')
+    size_id: str = Field(alias='sizeId')
+    nutrition_per_hundred_grams: dict = Field(alias='nutritionPerHundredGrams')
+    button_image_url: str = Field(alias="buttonImageUrl")
+    button_image_cropped_url: str = Field(alias="buttonImageCroppedUrl")
 
 
 class MBIdICItemModel(BaseModel):
@@ -741,7 +786,6 @@ class MBIdICItemModel(BaseModel):
     order_item_type: str
     item_sizes: List[MBIdICItemSizeModel]
 
-
     def __str__(self):
         return self.name
 
@@ -750,7 +794,8 @@ class MBIdItemCategoryModel(IdNameModel):
     description: str
     button_image_url: str = Field(alias="buttonImageUrl")
     header_image_url: str = Field(alias="headerImageUrl")
-    items: List[MBIdItemCategoryItemModel]
+    items: List[MBIdICItemModel]
+
 
 class BaseMenuByIdModel(IdNameModel):
     description: str

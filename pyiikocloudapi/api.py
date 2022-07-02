@@ -8,10 +8,10 @@ from typing import Optional, Union, List
 
 from pyiikocloudapi.decorators import experimental
 from pyiikocloudapi.exception import CheckTimeToken, SetSession, TokenException, PostException, ParamSetException
-from pyiikocloudapi.models import OrganizationsModel, ErrorModel, CouriersModel, BaseResponseModel, ByIdModel, \
+from pyiikocloudapi.models import OrganizationsModel, CustomErrorModel, CouriersModel, BaseResponseModel, ByIdModel, \
     ByDeliveryDateAndStatusModel, ByDeliveryDateAndSourceKeyAndFilter, BaseRegionsModel, BaseCitiesModel, \
     BaseStreetByCityModel, BaseTerminalGroupsModel, BaseTGIsAliveyModel, BaseCreatedDeliveryOrderInfoModel, \
-    BaseCreatedOrderInfoModel, BaseNomenclatureModel, BaseMenuModel
+    BaseCreatedOrderInfoModel, BaseNomenclatureModel, BaseMenuModel, BaseMenuByIdModel
 
 
 class BaseAPI:
@@ -165,24 +165,26 @@ class BaseAPI:
                                  self.access_token.__name__,
                                  f"Не удалось получить маркер доступа: \n{err}")
 
-    def _post_request(self, url: str, data: dict = None, model_response_data=None, model_error=ErrorModel):
+    def _post_request(self, url: str, data: dict = None, model_response_data=None, model_error=CustomErrorModel):
         if data is None:
             data = {}
         result = self.session_s.post(f'{self.base_url}{url}', json=json.dumps(data),
                                      headers=self.headers)
-
+        print(f"{result.status_code=}")
         out: dict = json.loads(result.content)
         if self.__debug:
             print(out)
         if out.get("errorDescription", None) is not None:
-            return model_error.parse_obj(out)
+            error_model = model_error.parse_obj(out)
+            error_model.status_code = result.status_code
+            return error_model
         if model_response_data is not None:
             return model_response_data.parse_obj(out)
         return out
 
     def __get_access_token(self):
         out = self.access_token()
-        if isinstance(out, ErrorModel):
+        if isinstance(out, CustomErrorModel):
             raise TokenException(self.__class__.__qualname__,
                                  self.access_token.__name__,
                                  f"Не удалось получить маркер доступа: \n{out}")
@@ -218,7 +220,7 @@ class BaseAPI:
                 # raise PostException(self.__class__.__qualname__,
                 #                     self.organizations.__name__,
                 #                     f"Не удалось получить организации: \n{out}")
-                return ErrorModel.parse_obj(out)
+                return CustomErrorModel.parse_obj(out)
             self.__convert_org_data(data=out.get('organizations'))
 
             return self.__organizations_ids_model
@@ -235,7 +237,7 @@ class BaseAPI:
 
 class Menu(BaseAPI):
     def nomenclature(self, organization_id: str, start_revision: int = None) -> Union[
-        ErrorModel, BaseNomenclatureModel]:
+        CustomErrorModel, BaseNomenclatureModel]:
         data = {
             "organizationId": organization_id,
         }
@@ -258,7 +260,7 @@ class Menu(BaseAPI):
                             self.nomenclature.__name__,
                             f"Не удалось получить номенклатуру: \n{err}")
 
-    def menu(self, ) -> Union[ErrorModel, BaseMenuModel]:
+    def menu(self, ) -> Union[CustomErrorModel, BaseMenuModel]:
         try:
 
             return self._post_request(
@@ -268,16 +270,43 @@ class Menu(BaseAPI):
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
                                  self.nomenclature.__name__,
-                                 f"Не удалось получить меню: \n{err}")
+                                 f"Не удалось получить внешние меню с ценовыми категориями: \n{err}")
         except TypeError as err:
             raise TypeError(self.__class__.__qualname__,
                             self.nomenclature.__name__,
-                            f"Не удалось получить меню: \n{err}")
+                            f"Не удалось получить внешние меню с ценовыми категориями: \n{err}")
+
+    def menu_by_id(self, external_menu_id: str, organization_ids: List[str], price_category_id: str = None) -> Union[
+        CustomErrorModel, BaseMenuByIdModel]:
+
+        data = {
+            "externalMenuId": external_menu_id,
+            "organizationIds": organization_ids,
+        }
+
+        if price_category_id is not None:
+            data["priceCategoryId"] = price_category_id
+
+        try:
+
+            return self._post_request(
+                url="/api/2/menu/by_id",
+                data=data,
+                model_response_data=BaseMenuByIdModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.nomenclature.__name__,
+                                 f"Не удалось получить внешнее меню по ID.: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.nomenclature.__name__,
+                            f"Не удалось получить внешнее меню по ID.: \n{err}")
 
 
 class TerminalGroup(BaseAPI):
-    def terminal_groups(self, organization_ids: List[str], include_disabled: bool = False) -> Union[
-        ErrorModel, BaseTerminalGroupsModel]:
+    def terminal_groups(self, organization_ids: List[str], include_disabled: bool = False) -> Union[CustomErrorModel,
+                                                                                                    BaseTerminalGroupsModel]:
         """
 
         :param organization_ids: 	Array of strings <uuid>, Organizations IDs for which information is requested.
@@ -309,12 +338,12 @@ class TerminalGroup(BaseAPI):
                             self.terminal_groups.__name__,
                             f"Не удалось получить регионы: \n{err}")
 
-    def is_alive(self, organization_ids: List[str], terminal_group_ids: List[str]) -> Union[
-        ErrorModel, BaseTGIsAliveyModel]:
+    def is_alive(self, organization_ids: List[str], terminal_group_ids: List[str], ) -> Union[CustomErrorModel,
+                                                                                              BaseTGIsAliveyModel]:
         """
 
+        :param terminal_group_ids:
         :param organization_ids: 	Array of strings <uuid>, Organizations IDs for which information is requested.
-        :param include_disabled:
         :return:
         """
         if not bool(organization_ids):
@@ -344,7 +373,7 @@ class TerminalGroup(BaseAPI):
 
 
 class Address(BaseAPI):
-    def regions(self, organization_ids: List[str], ) -> Union[ErrorModel, BaseRegionsModel]:
+    def regions(self, organization_ids: List[str], ) -> Union[CustomErrorModel, BaseRegionsModel]:
         """
         Возвращает регионы, доступные пользователю API-login.
         :return:
@@ -374,7 +403,7 @@ class Address(BaseAPI):
                             self.regions.__name__,
                             f"Не удалось получить регионы: \n{err}")
 
-    def cities(self, organization_ids: List[str], ) -> Union[ErrorModel, BaseCitiesModel]:
+    def cities(self, organization_ids: List[str], ) -> Union[CustomErrorModel, BaseCitiesModel]:
         """
         Возвращает регионы, доступные пользователю API-login.
         :return:
@@ -406,7 +435,7 @@ class Address(BaseAPI):
                             self.cities.__name__,
                             f"Не удалось получить города: \n{err}")
 
-    def by_city(self, organization_id: str, city_id: str) -> Union[ErrorModel, BaseStreetByCityModel]:
+    def by_city(self, organization_id: str, city_id: str) -> Union[CustomErrorModel, BaseStreetByCityModel]:
         """
         Возвращает регионы, доступные пользователю API-login.
         :return:
@@ -438,7 +467,8 @@ class Address(BaseAPI):
 
 class Orders(BaseAPI):
     def order_create(self, organization_id: str, terminal_group_id: str, order: dict,
-                     create_order_settings: Optional[int] = None, ) -> Union[ErrorModel, BaseCreatedOrderInfoModel]:
+                     create_order_settings: Optional[int] = None, ) -> Union[
+        CustomErrorModel, BaseCreatedOrderInfoModel]:
         """"""
 
         data = {
@@ -514,7 +544,7 @@ class Orders(BaseAPI):
 class Deliveries(BaseAPI):
     def delivery_create(self, organization_id: str, order: dict, terminal_group_id: str = None,
                         create_order_settings: Optional[int] = None, ) -> Union[
-        ErrorModel, BaseCreatedDeliveryOrderInfoModel]:
+        CustomErrorModel, BaseCreatedDeliveryOrderInfoModel]:
         """"""
         data = {
             "organizationIds": organization_id,
@@ -655,7 +685,7 @@ class Deliveries(BaseAPI):
                                     delivery_date_to: Union[datetime, str] = None,
                                     statuses: list = None,
                                     source_keys: list = None
-                                    ) -> Union[ByDeliveryDateAndStatusModel, ErrorModel]:
+                                    ) -> Union[ByDeliveryDateAndStatusModel, CustomErrorModel]:
         """
 
 

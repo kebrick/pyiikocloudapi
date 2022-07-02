@@ -51,7 +51,7 @@ iiko Transport(iiko Cloud API) по словам **разработчиков** 
 - Menu
   - [x] [Menu.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1nomenclature/post)
   - [x] [External menus with price categories.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~12~1menu/post)
-  - [ ] [Retrieve external menu by ID.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~12~1menu~1by_id/post)
+  - [x] [Retrieve external menu by ID.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~12~1menu~1by_id/post)
   - [ ] [Out-of-stock items.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1stop_lists/post)
   - [ ] [Get combos info](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1combo/post)
   - [ ] [Calculate combo price](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1combo~1calculate/post)
