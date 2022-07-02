@@ -1,10 +1,7 @@
 # pyiikocloudapi
+##Python iiko cloud api сервис.
 
-
-iiko Transport(iiko Cloud API) по словам **разработчиков** это по сути горячие хранилище без доступа к данным БД
-
-
-
+#### iiko Transport(iiko Cloud API) по словам _**разработчиков**_ это по сути горячие хранилище без доступа к данным БД
 
 
 ### Инфо
@@ -42,8 +39,8 @@ iiko Transport(iiko Cloud API) по словам **разработчиков** 
   - [x] [Method that returns information on groups of delivery terminals.](https://api-ru.iiko.services/#tag/Terminal-groups/paths/~1api~11~1terminal_groups/post)
   - [x] [Returns information on availability of group of terminals.](https://api-ru.iiko.services/#tag/Terminal-groups/paths/~1api~11~1terminal_groups~1is_alive/post)
 - Dictionaries
-  - [ ] [Delivery cancel causes.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1cancel_causes/post)
-  - [ ] [Order types.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1deliveries~1order_types/post)
+  - [x] [Delivery cancel causes.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1cancel_causes/post)
+  - [x] [Order types.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1deliveries~1order_types/post)
   - [ ] [Discounts / surcharges.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1discounts/post)
   - [ ] [Payment types.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1payment_types/post)
   - [ ] [Removal types (reasons for deletion).](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1removal_types/post)

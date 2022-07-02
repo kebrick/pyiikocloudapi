@@ -181,7 +181,7 @@ class OrderItemDeletedModel(BaseModel):
     deletion_method: OrderItemDeletionMethodModel
 
 
-class OrderTypeModel(BaseModel):
+class CDOrderTypeModel(BaseModel):
     id: str
     name: str
     order_service_type: str = Field(alias="orderServiceType")
@@ -262,7 +262,7 @@ class CreatedDeliveryOrderModel(BaseModel):
     payments: Optional[List[PaymentItemOrderModel]]
     tips: Optional[List[TipsItemOrderModel]]
     discounts: Optional[List[DiscountsItemOrderModel]]
-    order_type: Optional[OrderTypeModel] = Field(alias="orderType")
+    order_type: Optional[CDOrderTypeModel] = Field(alias="orderType")
     terminal_group_id: str = Field(alias="terminalGroupId")
     processed_payments_sum: Optional[int] = Field(alias="processedPaymentsSum")
 
@@ -800,3 +800,24 @@ class MBIdItemCategoryModel(IdNameModel):
 class BaseMenuByIdModel(IdNameModel):
     description: str
     item_categories: List[MBIdItemCategoryModel] = Field(alias="itemCategories")
+
+
+class CCItemModel(IdNameModel):
+    is_deleted: bool = Field(alias='isDeleted')
+
+
+class BaseCancelCausesModel(BaseResponseModel):
+    cancel_causes: List[CCItemModel] = Field(alias='cancelCauses')
+
+class ORTItemModel(IdNameModel):
+    order_service_type: str = Field(alias='orderServiceType')
+    is_deleted: bool = Field(alias='isDeleted')
+    external_revision: Optional[int] = Field(alias="externalRevision")
+
+
+class OrderTypeModel(BaseModel):
+    organization_id: str
+    items: List[ORTItemModel]
+
+class BaseOrderTypesModel(BaseResponseModel):
+    order_types: List[OrderTypeModel] = Field(alias='orderTypes')

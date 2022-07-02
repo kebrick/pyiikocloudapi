@@ -11,7 +11,8 @@ from pyiikocloudapi.exception import CheckTimeToken, SetSession, TokenException,
 from pyiikocloudapi.models import OrganizationsModel, CustomErrorModel, CouriersModel, BaseResponseModel, ByIdModel, \
     ByDeliveryDateAndStatusModel, ByDeliveryDateAndSourceKeyAndFilter, BaseRegionsModel, BaseCitiesModel, \
     BaseStreetByCityModel, BaseTerminalGroupsModel, BaseTGIsAliveyModel, BaseCreatedDeliveryOrderInfoModel, \
-    BaseCreatedOrderInfoModel, BaseNomenclatureModel, BaseMenuModel, BaseMenuByIdModel
+    BaseCreatedOrderInfoModel, BaseNomenclatureModel, BaseMenuModel, BaseMenuByIdModel, BaseCancelCausesModel, \
+    BaseOrderTypesModel
 
 
 class BaseAPI:
@@ -21,6 +22,15 @@ class BaseAPI:
 
     def __init__(self, api_login: str, session: Optional[requests.Session] = None, debug: bool = False,
                  base_url: str = None, working_token: str = None, base_headers: dict = None):
+        """
+
+        :param api_login: login api iiko cloud
+        :param session: session object
+        :param debug: print dict reponse
+        :param base_url: url iiko cloud api
+        :param working_token: Initialize an object based on a working token, that is, without requesting a new one
+        :param base_headers: base header for request in iiko cloud api
+        """
 
         if session is not None:
             self.__session = session
@@ -201,14 +211,24 @@ class BaseAPI:
                 )
             )
 
-    def organizations(self):
+    def organizations(self, organization_ids: List[str] = None, return_additional_info: bool = None, include_disabled: bool = None):
         """
         Возвращает организации, доступные пользователю API-login.
+        :param organization_ids: Organizations IDs which have to be returned. By default - all organizations from apiLogin.
+        :param return_additional_info: A sign whether additional information about the organization should be returned (RMS version, country, restaurantAddress, etc.), or only minimal information should be returned (id and name).
+        :param include_disabled: Attribute that shows that response contains disabled organizations.
         :return:
         """
         #         https://api-ru.iiko.services/api/1/organizations
+        data = {}
+        if organization_ids is not None:
+            data["organizationIds"] = organization_ids
+        if return_additional_info is not None:
+            data["returnAdditionalInfo"] = return_additional_info
+        if include_disabled is not None:
+            data["includeDisabled"] = include_disabled
         try:
-            result = self.session_s.post(f'{self.__base_url}/api/1/organizations', json=json.dumps({}),
+            result = self.session_s.post(f'{self.__base_url}/api/1/organizations', json=json.dumps(data),
                                          headers=self.headers)
             if len(result.content) == 0:
                 raise PostException(self.__class__.__qualname__,
@@ -235,9 +255,58 @@ class BaseAPI:
                             f"Не удалось получить организации: \n{err}")
 
 
+class Dictionaries(BaseAPI):
+    def cancel_causes(self, organization_ids: List[str]) -> Union[CustomErrorModel, BaseCancelCausesModel]:
+        if not bool(organization_ids):
+            raise ParamSetException(self.__class__.__qualname__,
+                                    self.cancel_causes.__name__,
+                                    f"Пустой список id организаций")
+        data = {
+            "organizationIds": organization_ids,
+        }
+        try:
+
+            return self._post_request(
+                url="/api/1/cancel_causes",
+                data=data,
+                model_response_data=BaseCancelCausesModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.cancel_causes.__name__,
+                                 f"Не удалось получить причины отмены доставки: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.cancel_causes.__name__,
+                            f"Не удалось получить причины отмены доставки: \n{err}")
+
+    def order_types(self, organization_ids: List[str]) -> Union[CustomErrorModel, BaseOrderTypesModel]:
+        if not bool(organization_ids):
+            raise ParamSetException(self.__class__.__qualname__,
+                                    self.order_types.__name__,
+                                    f"Пустой список id организаций")
+        data = {
+            "organizationIds": organization_ids,
+        }
+        try:
+
+            return self._post_request(
+                url="/api/1/deliveries/order_types",
+                data=data,
+                model_response_data=BaseOrderTypesModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.order_types.__name__,
+                                 f"Не удалось получить типы заказа: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.order_types.__name__,
+                            f"Не удалось получить типы заказа: \n{err}")
+
 class Menu(BaseAPI):
-    def nomenclature(self, organization_id: str, start_revision: int = None) -> Union[
-        CustomErrorModel, BaseNomenclatureModel]:
+    def nomenclature(self, organization_id: str, start_revision: int = None) -> Union[CustomErrorModel,
+                                                                                      BaseNomenclatureModel]:
         data = {
             "organizationId": organization_id,
         }
