@@ -8,11 +8,11 @@ from typing import Optional, Union, List
 
 from pyiikocloudapi.decorators import experimental
 from pyiikocloudapi.exception import CheckTimeToken, SetSession, TokenException, PostException, ParamSetException
-from pyiikocloudapi.models import OrganizationsModel, CustomErrorModel, CouriersModel, BaseResponseModel, ByIdModel, \
+from pyiikocloudapi.models import OrganizationModel, CustomErrorModel, CouriersModel, BaseResponseModel, ByIdModel, \
     ByDeliveryDateAndStatusModel, ByDeliveryDateAndSourceKeyAndFilter, BaseRegionsModel, BaseCitiesModel, \
     BaseStreetByCityModel, BaseTerminalGroupsModel, BaseTGIsAliveyModel, BaseCreatedDeliveryOrderInfoModel, \
     BaseCreatedOrderInfoModel, BaseNomenclatureModel, BaseMenuModel, BaseMenuByIdModel, BaseCancelCausesModel, \
-    BaseOrderTypesModel
+    BaseOrderTypesModel, BaseDiscountsModel, BaseOrganizationsModel, BasePaymentTypesModel
 
 
 class BaseAPI:
@@ -41,7 +41,7 @@ class BaseAPI:
         self.__token: Optional[str] = None
         self.__debug = debug
         self.__time_token: Optional[date] = None
-        self.__organizations_ids_model: Optional[List[OrganizationsModel]] = None
+        self.__organizations_ids_model: Optional[BaseOrganizationsModel] = None
         self.__organizations_ids: Optional[List[str]] = None
         self.__strfdt = "%Y-%m-%d %H:%M:%S.000"
 
@@ -86,7 +86,7 @@ class BaseAPI:
                 f"Не запрошен Token и не присвоен объект типа datetime.datetime")
 
     @property
-    def organizations_ids_models(self) -> Optional[List[OrganizationsModel]]:
+    def organizations_ids_models(self) -> Optional[List[OrganizationModel]]:
         """Вывести сессию"""
         return self.__organizations_ids_model
 
@@ -180,17 +180,18 @@ class BaseAPI:
             data = {}
         result = self.session_s.post(f'{self.base_url}{url}', json=json.dumps(data),
                                      headers=self.headers)
-        print(f"{result.status_code=}")
-        out: dict = json.loads(result.content)
+        print()
+        response_data: dict = json.loads(result.content)
         if self.__debug:
-            print(out)
-        if out.get("errorDescription", None) is not None:
-            error_model = model_error.parse_obj(out)
+            print(f"{result.status_code=}\n{response_data=}\n")
+
+        if response_data.get("errorDescription", None) is not None:
+            error_model = model_error.parse_obj(response_data)
             error_model.status_code = result.status_code
             return error_model
         if model_response_data is not None:
-            return model_response_data.parse_obj(out)
-        return out
+            return model_response_data.parse_obj(response_data)
+        return response_data
 
     def __get_access_token(self):
         out = self.access_token()
@@ -199,19 +200,11 @@ class BaseAPI:
                                  self.access_token.__name__,
                                  f"Не удалось получить маркер доступа: \n{out}")
 
-    def __convert_org_data(self, data: dict):
-        self.__organizations_ids_model = list()
-        self.__organizations_ids = list()
-        for org in data.__iter__():
-            self.__organizations_ids.append(org.get('id', ""))
-            self.__organizations_ids_model.append(
-                OrganizationsModel(
-                    name=org.get("name", ""),
-                    id=org.get("id", "")
-                )
-            )
+    def __convert_org_data(self, data: BaseOrganizationsModel):
+        self.__organizations_ids = data.__list_id__()
 
-    def organizations(self, organization_ids: List[str] = None, return_additional_info: bool = None, include_disabled: bool = None):
+    def organizations(self, organization_ids: List[str] = None, return_additional_info: bool = None,
+                      include_disabled: bool = None) -> Union[CustomErrorModel, BaseOrganizationsModel]:
         """
         Возвращает организации, доступные пользователю API-login.
         :param organization_ids: Organizations IDs which have to be returned. By default - all organizations from apiLogin.
@@ -228,22 +221,31 @@ class BaseAPI:
         if include_disabled is not None:
             data["includeDisabled"] = include_disabled
         try:
-            result = self.session_s.post(f'{self.__base_url}/api/1/organizations', json=json.dumps(data),
-                                         headers=self.headers)
-            if len(result.content) == 0:
-                raise PostException(self.__class__.__qualname__,
-                                    self.organizations.__name__,
-                                    f"Пустой ответ")
-            out: dict = json.loads(result.content)
+            # result = self.session_s.post(f'{self.__base_url}/api/1/organizations', json=json.dumps(data),
+            #                              headers=self.headers)
+            # if len(result.content) == 0:
+            #     raise PostException(self.__class__.__qualname__,
+            #                         self.organizations.__name__,
+            #                         f"Пустой ответ")
+            # out: dict = json.loads(result.content)
+            #
+            # if out.get("errorDescription", None) is not None:
+            #     # raise PostException(self.__class__.__qualname__,
+            #     #                     self.organizations.__name__,
+            #     #                     f"Не удалось получить организации: \n{out}")
+            #     return CustomErrorModel.parse_obj(out)
+            #
+            #
+            # return self.__organizations_ids_model
+            response_data = self._post_request(
+                url="/api/1/organizations",
+                data=data,
+                model_response_data=BaseOrganizationsModel
+            )
+            if isinstance(response_data, BaseOrganizationsModel):
+                self.__convert_org_data(data=response_data)
+            return response_data
 
-            if out.get("errorDescription", None) is not None:
-                # raise PostException(self.__class__.__qualname__,
-                #                     self.organizations.__name__,
-                #                     f"Не удалось получить организации: \n{out}")
-                return CustomErrorModel.parse_obj(out)
-            self.__convert_org_data(data=out.get('organizations'))
-
-            return self.__organizations_ids_model
 
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -303,6 +305,55 @@ class Dictionaries(BaseAPI):
             raise TypeError(self.__class__.__qualname__,
                             self.order_types.__name__,
                             f"Не удалось получить типы заказа: \n{err}")
+
+    def discounts(self, organization_ids: List[str]) -> Union[CustomErrorModel, BaseDiscountsModel]:
+        if not bool(organization_ids):
+            raise ParamSetException(self.__class__.__qualname__,
+                                    self.discounts.__name__,
+                                    f"Пустой список id организаций")
+        data = {
+            "organizationIds": organization_ids,
+        }
+        try:
+
+            return self._post_request(
+                url="/api/1/discounts",
+                data=data,
+                model_response_data=BaseDiscountsModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.discounts.__name__,
+                                 f"Не удалось получить скидки/надбавки: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.discounts.__name__,
+                            f"Не удалось получить скидки/надбавки: \n{err}")
+
+    def payment_types(self, organization_ids: List[str]) -> Union[CustomErrorModel, BasePaymentTypesModel]:
+        if not bool(organization_ids):
+            raise ParamSetException(self.__class__.__qualname__,
+                                    self.payment_types.__name__,
+                                    f"Пустой список id организаций")
+        data = {
+            "organizationIds": organization_ids,
+        }
+        try:
+
+            return self._post_request(
+                url="/api/1/payment_types",
+                data=data,
+                model_response_data=BasePaymentTypesModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.payment_types.__name__,
+                                 f"Не удалось получить типы оплаты: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.payment_types.__name__,
+                            f"Не удалось получить типы оплаты: \n{err}")
+
 
 class Menu(BaseAPI):
     def nomenclature(self, organization_id: str, start_revision: int = None) -> Union[CustomErrorModel,
@@ -991,5 +1042,5 @@ class Employees(BaseAPI):
                                 f"Не удалось: \n{err}")
 
 
-class IikoTransport(Orders, Deliveries, Employees, Address, TerminalGroup, Menu):
+class IikoTransport(Orders, Deliveries, Employees, Address, TerminalGroup, Menu, Dictionaries):
     pass

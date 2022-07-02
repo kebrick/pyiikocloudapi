@@ -24,12 +24,18 @@ class CustomErrorModel(ErrorModel):
     status_code: Optional[str]
 
 
-class OrganizationsModel(BaseModel):
-    name: str
-    id: str
+class OrganizationModel(IdNameModel):
+    response_type: str = Field(alias="responseType")
 
     def __str__(self):
         return self.name
+
+
+class BaseOrganizationsModel(BaseResponseModel):
+    organizations: List[OrganizationModel]
+
+    def __list_id__(self):
+        return [org.id for org in self.organizations]
 
 
 class EmployeeItemModel(BaseModel):
@@ -124,14 +130,14 @@ class CombosItemOrderModel(BaseModel):
     source_id: str = Field(alias="sourceId")
 
 
-class PaymentTypeModel(BaseModel):
+class PIOPaymentTypeModel(BaseModel):
     id: str
     name: str
     kind: str
 
 
 class PaymentItemOrderModel(BaseModel):
-    payment_type: PaymentTypeModel = Field(alias="paymentType")
+    payment_type: PIOPaymentTypeModel = Field(alias="paymentType")
     sum: float
     is_preliminary: bool = Field(alias="isPreliminary")
     is_external: bool = Field(alias="isExternal")
@@ -146,7 +152,7 @@ class TipsTypeModel(BaseModel):
 
 class TipsItemOrderModel(BaseModel):
     tips_type: TipsTypeModel = Field(alias="tipsType")
-    payment_type: PaymentTypeModel = Field(alias="paymentType")
+    payment_type: PIOPaymentTypeModel = Field(alias="paymentType")
     sum: float
     is_preliminary: bool = Field(alias="isPreliminary")
     is_external: bool = Field(alias="isExternal")
@@ -376,7 +382,7 @@ class BaseStreetByCityModel(BaseResponseModel):
     streets: Optional[List[StreetsItemModel]]
 
 
-class TerminalGroupsItemModel(BaseModel):
+class TerminalGroupItemModel(BaseModel):
     id: str
     name: str
     organization_id: str = Field(alias="organizationId")
@@ -385,7 +391,7 @@ class TerminalGroupsItemModel(BaseModel):
 
 class TerminalGroupsModel(BaseModel):
     organization_id: str = Field(alias='organizationId')
-    items: Optional[List[TerminalGroupsItemModel]]
+    items: Optional[List[TerminalGroupItemModel]]
 
 
 class BaseTerminalGroupsModel(BaseResponseModel):
@@ -802,6 +808,7 @@ class BaseMenuByIdModel(IdNameModel):
     item_categories: List[MBIdItemCategoryModel] = Field(alias="itemCategories")
 
 
+# Cancel Causes
 class CCItemModel(IdNameModel):
     is_deleted: bool = Field(alias='isDeleted')
 
@@ -809,6 +816,8 @@ class CCItemModel(IdNameModel):
 class BaseCancelCausesModel(BaseResponseModel):
     cancel_causes: List[CCItemModel] = Field(alias='cancelCauses')
 
+
+# OrderTypes
 class ORTItemModel(IdNameModel):
     order_service_type: str = Field(alias='orderServiceType')
     is_deleted: bool = Field(alias='isDeleted')
@@ -819,5 +828,58 @@ class OrderTypeModel(BaseModel):
     organization_id: str
     items: List[ORTItemModel]
 
+
 class BaseOrderTypesModel(BaseResponseModel):
     order_types: List[OrderTypeModel] = Field(alias='orderTypes')
+
+
+# Discounts
+class DIProductCategoryDiscountsModel(BaseModel):
+    category_id: str = Field(alias="categoryId")
+    category_name: Optional[str] = Field(alias='categoryName')
+    percent: float
+
+
+class DItemModel(IdNameModel):
+    percent: float
+    is_categorised_discount: bool = Field(alias='isCategorisedDiscount')
+    product_category_discounts: List[DIProductCategoryDiscountsModel] = Field(alias='productCategoryDiscounts')
+    comment: Optional[str]
+    can_be_applied_selectively: str = Field(alias='canBeAppliedSelectively')
+    min_order_sum: Optional[float] = Field(aliad='minOrderSum')
+    mode: str
+    sum: float
+    can_apply_by_card_number: bool = Field(alias='canApplyByCardNumber')
+    is_manual: bool = Field(alias='isManual')
+    is_card: bool = Field(alias='isCard')
+    is_automatic: bool = Field(alias='isAutomatic')
+    is_deleted: bool = Field(alias='isDeleted')
+
+
+class DiscountModel(BaseModel):
+    organization_id: str
+    items: List[DItemModel]
+
+
+class BaseDiscountsModel(BaseResponseModel):
+    discounts: List[DiscountModel]
+
+
+# Payment Types
+class PaymentTypeModel(IdNameModel):
+    code: Optional[str]
+    comment: Optional[str]
+    combinable: bool
+    external_revision: Optional[int] = Field(alias="externalRevision")
+    applicable_marketing_campaigns: List[str] = Field(alias="applicableMarketingCampaigns")
+    is_deleted: bool = Field(alias='isDeleted')
+    print_cheque: bool = Field(alias='printCheque')
+    payment_processing_type: Optional[str] = Field(alias='paymentProcessingType')
+    payment_type_kind: Optional[str] = Field(alias='paymentTypeKind')
+    terminal_groups: List[TerminalGroupItemModel] = Field(alias='terminalGroups')
+
+class BasePaymentTypesModel(BaseResponseModel):
+    payment_types: List[PaymentTypeModel] = Field(alias='paymentTypes')
+
+    def __list_id__(self):
+        return [pt.id for pt in self.payment_types]
