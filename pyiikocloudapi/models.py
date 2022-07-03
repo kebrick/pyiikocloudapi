@@ -825,7 +825,7 @@ class ORTItemModel(IdNameModel):
 
 
 class OrderTypeModel(BaseModel):
-    organization_id: str
+    organization_id: str = Field(alias="organizationId")
     items: List[ORTItemModel]
 
 
