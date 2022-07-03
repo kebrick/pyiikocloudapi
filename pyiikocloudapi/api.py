@@ -8,11 +8,7 @@ from typing import Optional, Union, List
 
 from pyiikocloudapi.decorators import experimental
 from pyiikocloudapi.exception import CheckTimeToken, SetSession, TokenException, PostException, ParamSetException
-from pyiikocloudapi.models import OrganizationModel, CustomErrorModel, CouriersModel, BaseResponseModel, ByIdModel, \
-    ByDeliveryDateAndStatusModel, ByDeliveryDateAndSourceKeyAndFilter, BaseRegionsModel, BaseCitiesModel, \
-    BaseStreetByCityModel, BaseTerminalGroupsModel, BaseTGIsAliveyModel, BaseCreatedDeliveryOrderInfoModel, \
-    BaseCreatedOrderInfoModel, BaseNomenclatureModel, BaseMenuModel, BaseMenuByIdModel, BaseCancelCausesModel, \
-    BaseOrderTypesModel, BaseDiscountsModel, BaseOrganizationsModel, BasePaymentTypesModel
+from pyiikocloudapi.models import *
 
 
 class BaseAPI:
@@ -353,6 +349,46 @@ class Dictionaries(BaseAPI):
             raise TypeError(self.__class__.__qualname__,
                             self.payment_types.__name__,
                             f"Не удалось получить типы оплаты: \n{err}")
+
+    def removal_types(self, organization_ids: List[str]) -> Union[CustomErrorModel, BaseRemovalTypesModel]:
+        if not bool(organization_ids):
+            raise ParamSetException(self.__class__.__qualname__,
+                                    self.removal_types.__name__,
+                                    f"Пустой список id организаций")
+        data = {
+            "organizationIds": organization_ids,
+        }
+        try:
+
+            return self._post_request(
+                url="/api/1/removal_types",
+                data=data,
+                model_response_data=BaseRemovalTypesModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.removal_types.__name__,
+                                 f"Не удалось получить removal_types: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.removal_types.__name__,
+                            f"Не удалось получить removal_types: \n{err}")
+
+    def tips_types(self, ) -> Union[CustomErrorModel, BaseTipsTypesModel]:
+        try:
+
+            return self._post_request(
+                url="/api/1/tips_types",
+                model_response_data=BaseTipsTypesModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.removal_types.__name__,
+                                 f"Не удалось получить подсказки для группы api-logins rms: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.removal_types.__name__,
+                            f"Не удалось получить подсказки для группы api-logins rms: \n{err}")
 
 
 class Menu(BaseAPI):

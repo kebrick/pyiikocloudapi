@@ -883,3 +883,28 @@ class BasePaymentTypesModel(BaseResponseModel):
 
     def __list_id__(self):
         return [pt.id for pt in self.payment_types]
+
+
+# Removal Types
+class RemovalTypeModel(IdNameModel):
+    comment: Optional[str]
+    can_writeoff_to_cafe: bool = Field(alias="canWriteoffToCafe")
+    can_writeoff_to_waiter: bool = Field(alias="canWriteoffToWaiter")
+    can_writeoff_to_user: bool = Field(alias="canWriteoffToUser")
+    reason_required: bool = Field(alias="reasonRequired")
+    manual: bool
+    is_deleted: bool = Field(alias='isDeleted')
+
+
+class BaseRemovalTypesModel(BaseResponseModel):
+    removal_types: List[RemovalTypeModel] = Field(alias="removalTypes")
+
+
+
+# Получите подсказки для группы api-logins rms.
+class TipTypeModel(IdNameModel):
+    organization_ids: List[str] = Field(alias="organizationIds")
+    order_service_types: List[str] = Field(alias="orderServiceTypes")
+    payment_types_ids: List[str] = Field(alias="paymentTypesIds")
+class BaseTipsTypesModel(BaseResponseModel):
+    tips_types: List[TipTypeModel] = Field(alias="tipsTypes")
