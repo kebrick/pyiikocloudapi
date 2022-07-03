@@ -41,10 +41,10 @@
 - Dictionaries
   - [x] [Delivery cancel causes.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1cancel_causes/post)
   - [x] [Order types.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1deliveries~1order_types/post)
-  - [ ] [Discounts / surcharges.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1discounts/post)
-  - [ ] [Payment types.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1payment_types/post)
-  - [ ] [Removal types (reasons for deletion).](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1removal_types/post)
-  - [ ] [Get tips tipes for api-login`s rms group.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1tips_types/post)
+  - [x] [Discounts / surcharges.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1discounts/post)
+  - [x] [Payment types.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1payment_types/post)
+  - [x] [Removal types (reasons for deletion).](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1removal_types/post)
+  - [x] [Get tips tipes for api-login`s rms group.](https://api-ru.iiko.services/#tag/Dictionaries/paths/~1api~11~1tips_types/post)
 - Menu
   - [x] [Menu.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1nomenclature/post)
   - [x] [External menus with price categories.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~12~1menu/post)
