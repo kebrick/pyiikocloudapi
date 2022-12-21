@@ -248,7 +248,7 @@ class Commands(BaseAPI):
         :return:
         """
         data = {
-            "organizationIds": organization_id,
+            "organizationId": organization_id,
             "correlationId": correlation_id,
         }
 
