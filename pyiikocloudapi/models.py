@@ -1,6 +1,7 @@
+from decimal import Decimal
 from enum import Enum
 from pydantic import BaseModel, Field
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Any
 
 
 class IdNameModel(BaseModel):
@@ -25,14 +26,45 @@ class CustomErrorModel(ErrorModel):
 
 
 class OrganizationModel(IdNameModel):
-    response_type: str = Field(alias="responseType")
+    class ResponseTypeEnum(str, Enum):
+        simple = "Simple"
+        extended = "Extended"
+
+    class OAddressFormatTypeEnum(str, Enum):
+        legacy = "Legacy"
+        city = "City"
+        international = "International"
+        int_no_postcode = "IntNoPostcode"
+
+    country: Optional[str]
+    restaurant_address: Optional[str] = Field(alias="restaurantAddress")
+    latitude: Optional[Decimal]
+    longitude: Optional[Decimal]
+    use_uae_addressing_system: Optional[bool] = Field(alias="useUaeAddressingSystem")
+    version: Optional[str]
+    currency_iso_name: Optional[str] = Field(alias="currencyIsoName")
+    currency_minimum_denomination: Optional[Decimal] = Field(alias="currencyMinimumDenomination")
+    country_phone_code: Optional[str] = Field(alias="countryPhoneCode")
+    marketing_source_required_in_delivery: Optional[bool] = Field(alias="marketingSourceRequiredInDelivery")
+    default_delivery_city_id: Optional[str] = Field(alias="defaultDeliveryCityId")
+    delivery_city_ids: Optional[List[str]] = Field(alias="deliveryCityIds")
+    delivery_service_type: Optional[str] = Field(alias="deliveryServiceType")
+    default_call_center_payment_type_id: Optional[str] = Field(alias="defaultCallCenterPaymentTypeId")
+    order_item_comment_enabled: Optional[bool] = Field(alias="orderItemCommentEnabled")
+    inn: Optional[str]
+    addressFormatType: Optional[OAddressFormatTypeEnum] = Field(alias="addressFormatType")
+    is_confirmation_enabled: Optional[bool] = Field(alias="isConfirmationEnabled")
+    confirm_allowed_interval_in_minutes: Optional[int] = Field(alias="confirmAllowedIntervalInMinutes")
+    response_type: ResponseTypeEnum = Field(alias="responseType")
 
     def __str__(self):
         return self.name
 
 
+
 class BaseOrganizationsModel(BaseResponseModel):
     organizations: List[OrganizationModel]
+
 
     def __list_id__(self):
         return [org.id for org in self.organizations]
@@ -534,19 +566,23 @@ class CreateOrderDetailModel(CreatedDeliveryOrderModel):
     waiter: Optional[OrderDetailWaiterModel]
     tab_name: Optional[str] = Field(alias="tabName")
 
+class COICreationStatusModel(str, Enum):
+    success = "Success"
+    in_progress = "InProgress"
+    error = "Error"
 
 class CreatedOrderInfoModel(BaseModel):
     id: str
     external_number: Optional[str] = Field(alias='externalNumber')
     organization_id: str = Field(alias='organizationId')
     timestamp: int
-    creation_status: Optional[str] = Field(alias='creationStatus')
+    creation_status: Optional[COICreationStatusModel] = Field(alias='creationStatus')
     error_info: Optional[ErrorInfoModel] = Field(alias="errorInfo")
     order: CreateOrderDetailModel
 
 
 class CreateDeliveryOrderInfoModel(CreatedOrderInfoModel):
-    order: CreatedDeliveryOrderModel
+    order: Optional[CreatedDeliveryOrderModel]
 
 
 class BaseCreatedOrderInfoModel(BaseResponseModel):
@@ -554,7 +590,7 @@ class BaseCreatedOrderInfoModel(BaseResponseModel):
 
 
 class BaseCreatedDeliveryOrderInfoModel(BaseResponseModel):
-    order_info: CreateDeliveryOrderInfoModel
+    order_info: CreateDeliveryOrderInfoModel = Field(alias="orderInfo")
 
 
 class NomenclatureGroupModel(BaseModel):
@@ -667,7 +703,7 @@ class NProductModel(BaseModel):
     proteins_amount: Optional[float] = Field(alias="proteinsAmount")
     carbohydrates_amount: Optional[float] = Field(alias="energyAmount")
     energy_amount: Optional[float] = Field(alias="carbohydratesAmount")
-    fatFull_amount: Optional[float] = Field(alias="fatFullAmount")
+    fat_full_amount: Optional[float] = Field(alias="fatFullAmount")
     proteins_full_amount: Optional[float] = Field(alias="proteinsFullAmount")
     carbohydrates_full_amount: Optional[float] = Field(alias="carbohydratesFullAmount")
     energy_full_amount: Optional[float] = Field(alias="energyFullAmount")
@@ -714,7 +750,7 @@ class BaseNomenclatureModel(BaseResponseModel):
     revision: int
 
     def __str__(self):
-        return self.revision
+        return str(self.revision)
 
 
 class BaseMenuModel(BaseResponseModel):
@@ -878,6 +914,7 @@ class PaymentTypeModel(IdNameModel):
     payment_type_kind: Optional[str] = Field(alias='paymentTypeKind')
     terminal_groups: List[TerminalGroupItemModel] = Field(alias='terminalGroups')
 
+
 class BasePaymentTypesModel(BaseResponseModel):
     payment_types: List[PaymentTypeModel] = Field(alias='paymentTypes')
 
@@ -900,11 +937,66 @@ class BaseRemovalTypesModel(BaseResponseModel):
     removal_types: List[RemovalTypeModel] = Field(alias="removalTypes")
 
 
-
 # Получите подсказки для группы api-logins rms.
 class TipTypeModel(IdNameModel):
     organization_ids: List[str] = Field(alias="organizationIds")
     order_service_types: List[str] = Field(alias="orderServiceTypes")
     payment_types_ids: List[str] = Field(alias="paymentTypesIds")
+
+
 class BaseTipsTypesModel(BaseResponseModel):
     tips_types: List[TipTypeModel] = Field(alias="tipsTypes")
+
+
+class BaseStatusModel(BaseModel):
+    exception: Optional[Any]
+    state: COICreationStatusModel
+
+
+class CSGProductModel(BaseModel):
+    product_id: str = Field(alias="productId")
+    size_id: Optional[str] = Field(alias="sizeId")
+    forbidden_modifiers: str = Field(alias="forbiddenModifiers")
+    price_modification_amount: float = Field(alias="priceModificationAmount")
+
+
+class CSGroupModel(IdNameModel):
+    is_main_group: bool = Field(alias="isMainGroup")
+    products: List[CSGProductModel]
+
+
+class ComboSpecificationModel(BaseModel):
+    source_action_id: str = Field(alias="sourceActionId")
+    category_id: Optional[Any] = Field(alias="categoryId")
+    name: str
+    price_modification_type: int = Field(alias="priceModificationType")
+    price_modification: float = Field(alias="priceModification")
+    groups: List[CSGroupModel]
+
+
+class BaseComboModel(BaseModel):
+    combo_specifications: List[ComboSpecificationModel] = Field(alias="comboSpecifications")
+    combo_categories: List[IdNameModel] = Field(alias="comboCategories")
+
+
+class BaseComboCalculateModel(BaseModel):
+    price: float
+    incorrectly_filled_groups: List[str] = Field(alias="incorrectlyFilledGroups")
+
+
+class BaseOrderByTableModel(BaseModel):
+    pass
+
+
+class EIEmployeeModel(BaseModel):
+    id: str
+    first_name: Optional[str] = Field(alias='firstName')
+    middle_name: Optional[str] = Field(alias='middleName')
+    last_name: Optional[str] = Field(alias='lastName')
+    email: Optional[str]
+    phone: Optional[str]
+    cell_phone: Optional[str] = Field(alias="cellPhone")
+
+
+class BaseEInfoModel(BaseResponseModel):
+    employee_info: EIEmployeeModel = Field(alias="employeeInfo")

@@ -32,7 +32,7 @@
 - Authorization
   - [x] [Retrieve session key for API user.](https://api-ru.iiko.services/#tag/Authorization/paths/~1api~11~1access_token/post)
 - Notifications
-  - [ ] [Send notification to external systems (iikoFront and iikoWeb).](https://api-ru.iiko.services/#tag/Notifications/paths/~1api~11~1notifications~1send/post)
+  - [x] [Send notification to external systems (iikoFront and iikoWeb).](https://api-ru.iiko.services/#tag/Notifications/paths/~1api~11~1notifications~1send/post)
 - Organizations
   - [x] [Returns organizations available to api-login user.](https://api-ru.iiko.services/#tag/Organizations/paths/~1api~11~1organizations/post)
 - Terminal groups
@@ -50,11 +50,11 @@
   - [x] [External menus with price categories.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~12~1menu/post)
   - [x] [Retrieve external menu by ID.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~12~1menu~1by_id/post)
   - [x] [Out-of-stock items.](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1stop_lists/post)
-  - [ ] [Get combos info](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1combo/post)
-  - [ ] [Calculate combo price](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1combo~1calculate/post)
+  - [x] [Get combos info](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1combo/post)
+  - [x] [Calculate combo price](https://api-ru.iiko.services/#tag/Menu/paths/~1api~11~1combo~1calculate/post)
   - [ ] [WebHook notification about stop list update. Webhook ???](https://api-ru.iiko.services/#tag/Menu/paths/iikoTransport.PublicApi.Contracts.WebHooks.StopListUpdateWebHookEventInfo/post)
 - Operations
-  - [ ] [Get status of command.](https://api-ru.iiko.services/#tag/Operations/paths/~1api~11~1commands~1status/post)
+  - [x] [Get status of command.](https://api-ru.iiko.services/#tag/Operations/paths/~1api~11~1commands~1status/post)
 - Deliveries: Create and update
   - [x] [Create delivery.](https://api-ru.iiko.services/#tag/Deliveries:-Create-and-update/paths/~1api~11~1deliveries~1create/post)
   - [ ] [Update order problem.](https://api-ru.iiko.services/#tag/Deliveries:-Create-and-update/paths/~1api~11~1deliveries~1update_order_problem/post)
@@ -94,7 +94,8 @@
   - [ ] [Returns list of all employees which are delivery drivers in specified restaurants, and checks whether each employee has passed role.](https://api-ru.iiko.services/#tag/Employees/paths/~1api~11~1employees~1couriers~1by_role/post)
   - [ ] [Returns list of all active (courier session is opened) courier's locations which are delivery drivers in specified restaurant and are clocked in on specified delivery terminal.](https://api-ru.iiko.services/#tag/Employees/paths/~1api~11~1employees~1couriers~1active_location~1by_terminal/post)
   - [ ] [Returns list of all active (courier session is opened) courier's locations which are delivery drivers in specified restaurants.](https://api-ru.iiko.services/#tag/Employees/paths/~1api~11~1employees~1couriers~1active_location/post)
-- Marketing sources
+  - [ ] [Returns employee info.](https://api-ru.iiko.services/#tag/Employees/paths/~1api~11~1employees~1info/post)
+- wMarketing sources
   - [ ] [Marketing sources.](https://api-ru.iiko.services/#tag/Marketing-sources/paths/~1api~11~1marketing_sources/post)
 - Drafts
   - [ ] [Retrieve order draft by ID.](https://api-ru.iiko.services/#tag/Drafts/paths/~1api~11~1deliveries~1drafts~1by_id/post)

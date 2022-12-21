@@ -4,7 +4,7 @@ import uuid
 from datetime import date, timedelta
 from datetime import datetime
 import requests
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Any, Dict, Type
 
 from pyiikocloudapi.decorators import experimental
 from pyiikocloudapi.exception import CheckTimeToken, SetSession, TokenException, PostException, ParamSetException
@@ -50,6 +50,7 @@ class BaseAPI:
         #     self.__set_token(working_token)
         # else:
         #     self.__get_access_token()
+        self.__last_data = None
 
     def check_status_code_token(self, code: Union[str, int]):
         if str(code) == "401":
@@ -83,14 +84,16 @@ class BaseAPI:
 
     @property
     def organizations_ids_models(self) -> Optional[List[OrganizationModel]]:
-        """Вывести сессию"""
         return self.__organizations_ids_model
 
     @property
     def organizations_ids(self) -> Optional[List[str]]:
-        """Вывести сессию"""
-        return self.__organizations_ids
 
+        return self.__organizations_ids
+    @property
+    def last_data(self) -> Optional[List[str]]:
+
+        return self.__last_data
     @property
     def session_s(self) -> requests.Session:
         """Вывести сессию"""
@@ -174,16 +177,15 @@ class BaseAPI:
     def _post_request(self, url: str, data: dict = None, model_response_data=None, model_error=CustomErrorModel):
         if data is None:
             data = {}
-        result = self.session_s.post(f'{self.base_url}{url}', json=json.dumps(data),
-                                     headers=self.headers)
-        print()
-        response_data: dict = json.loads(result.content)
+        response = self.session_s.post(f'{self.base_url}{url}', json=json.dumps(data),
+                                       headers=self.headers)
+        response_data: dict = json.loads(response.content)
         if self.__debug:
-            print(f"{result.status_code=}\n{response_data=}\n")
-
+            print(f"Входные данные:\n{response.request.url=}\n{response.request.body=}\n{response.request.headers=}\n\nВыходные данные:\n{response.headers=}\n{response_data=}\n\n")
+        self.__last_data = response_data
         if response_data.get("errorDescription", None) is not None:
             error_model = model_error.parse_obj(response_data)
-            error_model.status_code = result.status_code
+            error_model.status_code = response.status_code
             return error_model
         if model_response_data is not None:
             return model_response_data.parse_obj(response_data)
@@ -217,22 +219,6 @@ class BaseAPI:
         if include_disabled is not None:
             data["includeDisabled"] = include_disabled
         try:
-            # result = self.session_s.post(f'{self.__base_url}/api/1/organizations', json=json.dumps(data),
-            #                              headers=self.headers)
-            # if len(result.content) == 0:
-            #     raise PostException(self.__class__.__qualname__,
-            #                         self.organizations.__name__,
-            #                         f"Пустой ответ")
-            # out: dict = json.loads(result.content)
-            #
-            # if out.get("errorDescription", None) is not None:
-            #     # raise PostException(self.__class__.__qualname__,
-            #     #                     self.organizations.__name__,
-            #     #                     f"Не удалось получить организации: \n{out}")
-            #     return CustomErrorModel.parse_obj(out)
-            #
-            #
-            # return self.__organizations_ids_model
             response_data = self._post_request(
                 url="/api/1/organizations",
                 data=data,
@@ -251,6 +237,36 @@ class BaseAPI:
             raise TypeError(self.__class__.__qualname__,
                             self.organizations.__name__,
                             f"Не удалось получить организации: \n{err}")
+
+
+class Commands(BaseAPI):
+    def status(self, organization_id: str, correlation_id: str) -> Union[BaseStatusModel, CustomErrorModel,]:
+        """
+
+        :param organization_id:
+        :param correlation_id:
+        :return:
+        """
+        data = {
+            "organizationIds": organization_id,
+            "correlationId": correlation_id,
+        }
+
+        try:
+
+            return self._post_request(
+                url="/api/1/commands/status",
+                data=data,
+                model_response_data=BaseStatusModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.status.__name__,
+                                 f"Не удалось получить статус: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.status.__name__,
+                            f"Не удалось получить статус: \n{err}")
 
 
 class Dictionaries(BaseAPI):
@@ -459,6 +475,51 @@ class Menu(BaseAPI):
                             self.nomenclature.__name__,
                             f"Не удалось получить внешнее меню по ID.: \n{err}")
 
+    def combo(self, organization_id: str, ) -> Union[CustomErrorModel, BaseComboModel]:
+
+        data = {
+            "organizationId": organization_id,
+        }
+
+        try:
+
+            return self._post_request(
+                url="/api/1/combo",
+                data=data,
+                model_response_data=BaseComboModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.nomenclature.__name__,
+                                 f"Не удалось получить комбо: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.nomenclature.__name__,
+                            f"Не удалось получить комбо: \n{err}")
+
+    def combo_calculate(self, organization_id: str, items: dict) -> Union[CustomErrorModel, BaseComboCalculateModel]:
+
+        data = {
+            "items": items,
+            "organizationId": organization_id,
+        }
+
+        try:
+
+            return self._post_request(
+                url="/api/1/combo/calculate",
+                data=data,
+                model_response_data=BaseComboCalculateModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.nomenclature.__name__,
+                                 f"Не удалось получить расчёт комбо: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.nomenclature.__name__,
+                            f"Не удалось получить расчёт комбо: \n{err}")
+
 
 class TerminalGroup(BaseAPI):
     def terminal_groups(self, organization_ids: List[str], include_disabled: bool = False) -> Union[CustomErrorModel,
@@ -621,10 +682,77 @@ class Address(BaseAPI):
                             f"Не удалось получить улицы: \n{err}")
 
 
+class DeliveryRestrictions(BaseAPI):
+    def delivery_restrictions(self, organization_ids: List[str], ) -> Union[CustomErrorModel,]:
+        if not bool(organization_ids):
+            raise ParamSetException(self.__class__.__qualname__,
+                                    self.delivery_restrictions.__name__,
+                                    f"Пустой список id организаций")
+        data = {
+            "organizationIds": organization_ids,
+        }
+
+        try:
+
+            return self._post_request(
+                url="/api/1/delivery_restrictions",
+                data=data,
+                # model_response_data=BaseRemovalTypesModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.delivery_restrictions.__name__,
+                                 f"Не удалось получить список ограничений доставки: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.delivery_restrictions.__name__,
+                            f"Не удалось получить список ограничений доставки: \n{err}")
+
+    def dr_allowed(self, organization_ids: List[str], is_courier_delivery: bool,
+                   delivery_address: dict = None, order_location: dict = None, order_items: dict = None,
+                   delivery_date: str = None, delivery_sum: float = None, discount_sum: float = None) -> Union[
+        CustomErrorModel, BaseRemovalTypesModel]:
+        if not bool(organization_ids):
+            raise ParamSetException(self.__class__.__qualname__,
+                                    self.dr_allowed.__name__,
+                                    f"Пустой список id организаций")
+        data = {
+            "organizationIds": organization_ids,
+            "isCourierDelivery": is_courier_delivery,
+        }
+        if delivery_address is not None:
+            data["deliveryAddress"] = delivery_address
+        if order_location is not None:
+            data["orderLocation"] = order_location
+        if order_items is not None:
+            data["orderItems"] = order_items
+        if delivery_date is not None:
+            data["deliveryDate"] = delivery_date
+        if delivery_sum is not None:
+            data["deliverySum"] = delivery_sum
+        if discount_sum is not None:
+            data["discountSum"] = discount_sum
+        try:
+
+            return self._post_request(
+                url="/api/1/delivery_restrictions/allowed",
+                data=data,
+                # model_response_data=BaseRemovalTypesModel
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.dr_allowed.__name__,
+                                 f"Не удалось получить подходящие группы терминалов для ограничения доставки: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.dr_allowed.__name__,
+                            f"Не удалось получить подходящие группы терминалов для ограничения доставки: \n{err}")
+
+
 class Orders(BaseAPI):
     def order_create(self, organization_id: str, terminal_group_id: str, order: dict,
-                     create_order_settings: Optional[int] = None, ) -> Union[
-        CustomErrorModel, BaseCreatedOrderInfoModel]:
+                     create_order_settings: Optional[int] = None, ) -> Union[CustomErrorModel,
+                                                                             BaseCreatedOrderInfoModel]:
         """"""
 
         data = {
@@ -652,15 +780,15 @@ class Orders(BaseAPI):
                             self.order_create.__name__,
                             f"Не удалось создать заказ из за: \n{err}")
 
-    def by_id(self,
-              organization_id: List[str],
-              order_ids: list,
-              source_keys: list = None
-              ):
+    def order_by_id(self,
+                    organization_ids: List[str],
+                    order_ids: list,
+                    source_keys: list = None
+                    ) -> Union[CustomErrorModel, ByIdModel]:
         """
         Получить заказы по идентификаторам.
 
-        :param organization_id: Organization ID
+        :param organization_ids: Organization IDs
         :param order_ids: list orders id
         :param source_keys:
         :return:
@@ -670,7 +798,7 @@ class Orders(BaseAPI):
             raise TypeError("type order_ids != list")
 
         data = {
-            "organizationIds": organization_id,
+            "organizationIds": organization_ids,
             "orderIds": order_ids,
         }
 
@@ -682,18 +810,82 @@ class Orders(BaseAPI):
         try:
 
             return self._post_request(
-                url="/api/1/deliveries/by_id",
+                url="/api/1/order/by_id",
                 data=data,
                 model_response_data=ByIdModel
             )
 
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
-                                 self.by_id.__name__,
+                                 self.order_by_id.__name__,
                                  f"Не удалось получить заказы: \n{err}")
         except TypeError as err:
             raise TokenException(self.__class__.__qualname__,
-                                 self.by_id.__name__,
+                                 self.order_by_id.__name__,
+                                 f"Не удалось: \n{err}")
+
+    def order_by_table(self,
+                       organization_ids: List[str],
+                       table_ids: List[str],
+                       source_keys: List[str] = None,
+                       statuses: List[str] = None,
+                       date_from: str = None,
+                       date_to: str = None
+                       ) -> Union[CustomErrorModel, ByIdModel]:
+        """
+
+        :param organization_ids:
+        :param table_ids:
+        :param source_keys:
+        :param statuses:
+        :param date_from:
+        :param date_to:
+        :return:
+        """
+        # https://api-ru.iiko.services/api/1/deliveries/by_id
+        if not isinstance(table_ids, list):
+            raise TypeError("type table_ids != list")
+
+        data = {
+            "organizationIds": organization_ids,
+            "tableIds": table_ids,
+        }
+
+        if source_keys is not None:
+            if not isinstance(source_keys, list):
+                raise TypeError("type source_keys != list")
+            data["sourceKeys"] = source_keys
+
+        if statuses is not None:
+            if not isinstance(source_keys, list):
+                raise TypeError("type statuses != list")
+            data["statuses"] = statuses
+
+        if date_from is not None:
+            if not isinstance(source_keys, list):
+                raise TypeError("type date_from != str")
+            data["dateFrom"] = date_from
+
+        if date_to is not None:
+            if not isinstance(source_keys, list):
+                raise TypeError("type date_to != str")
+            data["dateTo"] = date_to
+
+        try:
+
+            return self._post_request(
+                url="/api/1/order/by_table",
+                data=data,
+                model_response_data=ByIdModel
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.order_by_id.__name__,
+                                 f"Не удалось получить заказы: \n{err}")
+        except TypeError as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.order_by_id.__name__,
                                  f"Не удалось: \n{err}")
 
 
@@ -703,7 +895,7 @@ class Deliveries(BaseAPI):
         CustomErrorModel, BaseCreatedDeliveryOrderInfoModel]:
         """"""
         data = {
-            "organizationIds": organization_id,
+            "organizationId": organization_id,
             "order": order,
         }
         if terminal_group_id is not None:
@@ -715,7 +907,7 @@ class Deliveries(BaseAPI):
         try:
 
             return self._post_request(
-                url="/api/1/delivery/create",
+                url="/api/1/deliveries/create",
                 data=data,
                 model_response_data=BaseCreatedDeliveryOrderInfoModel
             )
@@ -1051,13 +1243,52 @@ class Deliveries(BaseAPI):
                                  f"Не удалось: \n{err}")
 
 
+class Notifications(BaseAPI):
+    def send(self, order_source: str, order_id: str, additional_info: str, organization_id: str,
+             message_type: str = "delivery_attention"):
+        """
+
+        :param order_source:
+        :param order_id:
+        :param additional_info:
+        :param organization_id:
+        :param message_type:
+        :return:
+        """
+        data = {
+            "orderSource": order_source,
+            "orderId": order_id,
+            "additionalInfo": additional_info,
+            "messageType": message_type,
+            "organizationId": organization_id,
+
+        }
+
+        try:
+
+            return self._post_request(
+                url="/api/1/notifications/send",
+                data=data,
+                model_response_data=BaseResponseModel
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.send.__name__,
+                                f"Не удалось отправить оповещение: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.send.__name__,
+                                f"Не удалось: \n{err}")
+
+
 class Employees(BaseAPI):
 
-    def couriers(self, organization_id: List[str], ):
+    def couriers(self, organization_id: str, ):
 
         #     https://api-ru.iiko.services/api/1/employees/couriers
         data = {
-            "organizationIds": organization_id,
+            "organizationId": organization_id,
         }
 
         try:
@@ -1077,6 +1308,48 @@ class Employees(BaseAPI):
                                 self.couriers.__name__,
                                 f"Не удалось: \n{err}")
 
+    @experimental
+    def employees_couriers_locations_by_time_offset(self):
+        pass
 
-class IikoTransport(Orders, Deliveries, Employees, Address, TerminalGroup, Menu, Dictionaries):
+    @experimental
+    def employees_couriers_by_role(self):
+        pass
+
+    @experimental
+    def employees_couriers_active_location_by_terminal(self):
+        pass
+
+    @experimental
+    def employees_couriers_active_location(self):
+        pass
+
+
+    def employees_info(self, organization_id: str, id: str):
+        data = {
+            "organizationId": organization_id,
+            "id": id
+        }
+
+        try:
+
+            return self._post_request(
+                url="/api/1/employees/info",
+                data=data,
+                model_response_data=BaseEInfoModel,
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.couriers.__name__,
+                                f"Не удалось получить информацию о сотруднике: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.couriers.__name__,
+                                f"Не удалось: \n{err}")
+
+
+
+class IikoTransport(Orders, Deliveries, Employees, Address, DeliveryRestrictions, TerminalGroup, Menu, Dictionaries,
+                    Commands, Notifications):
     pass
