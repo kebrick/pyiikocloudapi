@@ -1,10 +1,11 @@
 import datetime
 import json
+import logging
 import uuid
 from datetime import date, timedelta
 from datetime import datetime
+
 import requests
-from typing import Optional, Union, List, Any, Dict, Type
 
 from pyiikocloudapi.decorators import experimental
 from pyiikocloudapi.exception import CheckTimeToken, SetSession, TokenException, PostException, ParamSetException
@@ -12,12 +13,13 @@ from pyiikocloudapi.models import *
 
 
 class BaseAPI:
-    DEFAULT_TIMEOUT = "00%3A02%3A00"
+    DEFAULT_TIMEOUT = "15"
 
     # __BASE_URL = "https://api-ru.iiko.services"
 
     def __init__(self, api_login: str, session: Optional[requests.Session] = None, debug: bool = False,
-                 base_url: str = None, working_token: str = None, base_headers: dict = None):
+                 base_url: str = None, working_token: str = None, base_headers: dict = None, logger: Optional[
+            logging.Logger] =  None):
         """
 
         :param api_login: login api iiko cloud
@@ -40,10 +42,12 @@ class BaseAPI:
         self.__organizations_ids_model: Optional[BaseOrganizationsModel] = None
         self.__organizations_ids: Optional[List[str]] = None
         self.__strfdt = "%Y-%m-%d %H:%M:%S.000"
+        self.logger = logger if logger is not None else logging.getLogger()
 
         self.__base_url = "https://api-ru.iiko.services" if base_url is None else base_url
         self.__headers = {
             "Content-Type": "application/json",
+            "Timeout": "45",
         } if base_headers is None else base_headers
         self.__set_token(working_token) if working_token is not None else self.__get_access_token()
         # if working_token is not None:
@@ -88,12 +92,12 @@ class BaseAPI:
 
     @property
     def organizations_ids(self) -> Optional[List[str]]:
-
         return self.__organizations_ids
+
     @property
     def last_data(self) -> Optional[List[str]]:
-
         return self.__last_data
+
     @property
     def session_s(self) -> requests.Session:
         """Вывести сессию"""
@@ -146,6 +150,18 @@ class BaseAPI:
     def headers(self, value: str):
         self.__headers = value
 
+    @property
+    def timeout(self):
+        return self.__headers.get("Timeout")
+
+    @timeout.setter
+    def timeout(self, value: int):
+        self.__headers.update({"Timeout": str(value)})
+
+    @timeout.deleter
+    def timeout(self):
+        self.__headers.update({"Timeout": str(self.DEFAULT_TIMEOUT)})
+
     def __set_token(self, token):
         self.__token = token
         self.__headers["Authorization"] = f"Bearer {self.token}"
@@ -174,14 +190,22 @@ class BaseAPI:
                                  self.access_token.__name__,
                                  f"Не удалось получить маркер доступа: \n{err}")
 
-    def _post_request(self, url: str, data: dict = None, model_response_data=None, model_error=CustomErrorModel):
+    def _post_request(self, url: str, data: dict = None, timeout=DEFAULT_TIMEOUT, model_response_data=None,
+                      model_error=CustomErrorModel):
         if data is None:
             data = {}
+        if timeout != self.DEFAULT_TIMEOUT:
+            self.timeout = timeout
+        self.logger.info(f"{url=}, {data=}, {model_response_data=}, {model_error=}")
         response = self.session_s.post(f'{self.base_url}{url}', json=json.dumps(data),
                                        headers=self.headers)
-        response_data: dict = json.loads(response.content)
+        if response.status_code == 401:
+            self.__get_access_token()
+            return self._post_request(url=url, data=data,timeout=timeout,model_response_data=model_response_data,model_error=model_error)
+        response_data: dict = json.loads(response.json())
         if self.__debug:
-            print(f"Входные данные:\n{response.request.url=}\n{response.request.body=}\n{response.request.headers=}\n\nВыходные данные:\n{response.headers=}\n{response_data=}\n\n")
+            self.logger.debug(
+                f"Входные данные:\n{response.request.url=}\n{response.request.body=}\n{response.request.headers=}\n\nВыходные данные:\n{response.headers=}\n{response_data=}\n\n")
         self.__last_data = response_data
         if response_data.get("errorDescription", None) is not None:
             error_model = model_error.parse_obj(response_data)
@@ -189,6 +213,7 @@ class BaseAPI:
             return error_model
         if model_response_data is not None:
             return model_response_data.parse_obj(response_data)
+        del self.timeout
         return response_data
 
     def __get_access_token(self):
@@ -202,7 +227,8 @@ class BaseAPI:
         self.__organizations_ids = data.__list_id__()
 
     def organizations(self, organization_ids: List[str] = None, return_additional_info: bool = None,
-                      include_disabled: bool = None) -> Union[CustomErrorModel, BaseOrganizationsModel]:
+                      include_disabled: bool = None, timeout=DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BaseOrganizationsModel]:
         """
         Возвращает организации, доступные пользователю API-login.
         :param organization_ids: Organizations IDs which have to be returned. By default - all organizations from apiLogin.
@@ -219,10 +245,12 @@ class BaseAPI:
         if include_disabled is not None:
             data["includeDisabled"] = include_disabled
         try:
+
             response_data = self._post_request(
                 url="/api/1/organizations",
                 data=data,
-                model_response_data=BaseOrganizationsModel
+                model_response_data=BaseOrganizationsModel,
+                timeout=timeout
             )
             if isinstance(response_data, BaseOrganizationsModel):
                 self.__convert_org_data(data=response_data)
@@ -240,11 +268,14 @@ class BaseAPI:
 
 
 class Commands(BaseAPI):
-    def status(self, organization_id: str, correlation_id: str) -> Union[BaseStatusModel, CustomErrorModel,]:
+    def status(self, organization_id: str, correlation_id: str, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        BaseStatusModel, CustomErrorModel,]:
         """
+
 
         :param organization_id:
         :param correlation_id:
+        :param timeout:
         :return:
         """
         data = {
@@ -257,7 +288,9 @@ class Commands(BaseAPI):
             return self._post_request(
                 url="/api/1/commands/status",
                 data=data,
-                model_response_data=BaseStatusModel
+                model_response_data=BaseStatusModel,
+                timeout=timeout
+
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -270,7 +303,8 @@ class Commands(BaseAPI):
 
 
 class Dictionaries(BaseAPI):
-    def cancel_causes(self, organization_ids: List[str]) -> Union[CustomErrorModel, BaseCancelCausesModel]:
+    def cancel_causes(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BaseCancelCausesModel]:
         if not bool(organization_ids):
             raise ParamSetException(self.__class__.__qualname__,
                                     self.cancel_causes.__name__,
@@ -283,7 +317,8 @@ class Dictionaries(BaseAPI):
             return self._post_request(
                 url="/api/1/cancel_causes",
                 data=data,
-                model_response_data=BaseCancelCausesModel
+                model_response_data=BaseCancelCausesModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -294,7 +329,8 @@ class Dictionaries(BaseAPI):
                             self.cancel_causes.__name__,
                             f"Не удалось получить причины отмены доставки: \n{err}")
 
-    def order_types(self, organization_ids: List[str]) -> Union[CustomErrorModel, BaseOrderTypesModel]:
+    def order_types(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BaseOrderTypesModel]:
         if not bool(organization_ids):
             raise ParamSetException(self.__class__.__qualname__,
                                     self.order_types.__name__,
@@ -307,7 +343,8 @@ class Dictionaries(BaseAPI):
             return self._post_request(
                 url="/api/1/deliveries/order_types",
                 data=data,
-                model_response_data=BaseOrderTypesModel
+                model_response_data=BaseOrderTypesModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -318,7 +355,8 @@ class Dictionaries(BaseAPI):
                             self.order_types.__name__,
                             f"Не удалось получить типы заказа: \n{err}")
 
-    def discounts(self, organization_ids: List[str]) -> Union[CustomErrorModel, BaseDiscountsModel]:
+    def discounts(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BaseDiscountsModel]:
         if not bool(organization_ids):
             raise ParamSetException(self.__class__.__qualname__,
                                     self.discounts.__name__,
@@ -331,7 +369,8 @@ class Dictionaries(BaseAPI):
             return self._post_request(
                 url="/api/1/discounts",
                 data=data,
-                model_response_data=BaseDiscountsModel
+                model_response_data=BaseDiscountsModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -342,7 +381,8 @@ class Dictionaries(BaseAPI):
                             self.discounts.__name__,
                             f"Не удалось получить скидки/надбавки: \n{err}")
 
-    def payment_types(self, organization_ids: List[str]) -> Union[CustomErrorModel, BasePaymentTypesModel]:
+    def payment_types(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BasePaymentTypesModel]:
         if not bool(organization_ids):
             raise ParamSetException(self.__class__.__qualname__,
                                     self.payment_types.__name__,
@@ -355,7 +395,8 @@ class Dictionaries(BaseAPI):
             return self._post_request(
                 url="/api/1/payment_types",
                 data=data,
-                model_response_data=BasePaymentTypesModel
+                model_response_data=BasePaymentTypesModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -366,7 +407,8 @@ class Dictionaries(BaseAPI):
                             self.payment_types.__name__,
                             f"Не удалось получить типы оплаты: \n{err}")
 
-    def removal_types(self, organization_ids: List[str]) -> Union[CustomErrorModel, BaseRemovalTypesModel]:
+    def removal_types(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BaseRemovalTypesModel]:
         if not bool(organization_ids):
             raise ParamSetException(self.__class__.__qualname__,
                                     self.removal_types.__name__,
@@ -379,7 +421,8 @@ class Dictionaries(BaseAPI):
             return self._post_request(
                 url="/api/1/removal_types",
                 data=data,
-                model_response_data=BaseRemovalTypesModel
+                model_response_data=BaseRemovalTypesModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -390,12 +433,13 @@ class Dictionaries(BaseAPI):
                             self.removal_types.__name__,
                             f"Не удалось получить removal_types: \n{err}")
 
-    def tips_types(self, ) -> Union[CustomErrorModel, BaseTipsTypesModel]:
+    def tips_types(self, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[CustomErrorModel, BaseTipsTypesModel]:
         try:
 
             return self._post_request(
                 url="/api/1/tips_types",
-                model_response_data=BaseTipsTypesModel
+                model_response_data=BaseTipsTypesModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -408,8 +452,8 @@ class Dictionaries(BaseAPI):
 
 
 class Menu(BaseAPI):
-    def nomenclature(self, organization_id: str, start_revision: int = None) -> Union[CustomErrorModel,
-                                                                                      BaseNomenclatureModel]:
+    def nomenclature(self, organization_id: str, start_revision: int = None, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BaseNomenclatureModel]:
         data = {
             "organizationId": organization_id,
         }
@@ -421,7 +465,8 @@ class Menu(BaseAPI):
             return self._post_request(
                 url="/api/1/nomenclature",
                 data=data,
-                model_response_data=BaseNomenclatureModel
+                model_response_data=BaseNomenclatureModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -432,12 +477,13 @@ class Menu(BaseAPI):
                             self.nomenclature.__name__,
                             f"Не удалось получить номенклатуру: \n{err}")
 
-    def menu(self, ) -> Union[CustomErrorModel, BaseMenuModel]:
+    def menu(self, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[CustomErrorModel, BaseMenuModel]:
         try:
 
             return self._post_request(
                 url="/api/2/menu",
-                model_response_data=BaseMenuModel
+                model_response_data=BaseMenuModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -448,7 +494,8 @@ class Menu(BaseAPI):
                             self.nomenclature.__name__,
                             f"Не удалось получить внешние меню с ценовыми категориями: \n{err}")
 
-    def menu_by_id(self, external_menu_id: str, organization_ids: List[str], price_category_id: str = None) -> Union[
+    def menu_by_id(self, external_menu_id: str, organization_ids: List[str], price_category_id: str = None,
+                   timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
         CustomErrorModel, BaseMenuByIdModel]:
 
         data = {
@@ -464,7 +511,8 @@ class Menu(BaseAPI):
             return self._post_request(
                 url="/api/2/menu/by_id",
                 data=data,
-                model_response_data=BaseMenuByIdModel
+                model_response_data=BaseMenuByIdModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -475,7 +523,7 @@ class Menu(BaseAPI):
                             self.nomenclature.__name__,
                             f"Не удалось получить внешнее меню по ID.: \n{err}")
 
-    def combo(self, organization_id: str, ) -> Union[CustomErrorModel, BaseComboModel]:
+    def combo(self, organization_id: str, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[CustomErrorModel, BaseComboModel]:
 
         data = {
             "organizationId": organization_id,
@@ -486,7 +534,8 @@ class Menu(BaseAPI):
             return self._post_request(
                 url="/api/1/combo",
                 data=data,
-                model_response_data=BaseComboModel
+                model_response_data=BaseComboModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -497,7 +546,8 @@ class Menu(BaseAPI):
                             self.nomenclature.__name__,
                             f"Не удалось получить комбо: \n{err}")
 
-    def combo_calculate(self, organization_id: str, items: dict) -> Union[CustomErrorModel, BaseComboCalculateModel]:
+    def combo_calculate(self, organization_id: str, items: dict, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BaseComboCalculateModel]:
 
         data = {
             "items": items,
@@ -509,7 +559,8 @@ class Menu(BaseAPI):
             return self._post_request(
                 url="/api/1/combo/calculate",
                 data=data,
-                model_response_data=BaseComboCalculateModel
+                model_response_data=BaseComboCalculateModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -522,8 +573,9 @@ class Menu(BaseAPI):
 
 
 class TerminalGroup(BaseAPI):
-    def terminal_groups(self, organization_ids: List[str], include_disabled: bool = False) -> Union[CustomErrorModel,
-                                                                                                    BaseTerminalGroupsModel]:
+    def terminal_groups(self, organization_ids: List[str], include_disabled: bool = False,
+                        timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[CustomErrorModel,
+                                                                  BaseTerminalGroupsModel]:
         """
 
         :param organization_ids: 	Array of strings <uuid>, Organizations IDs for which information is requested.
@@ -544,7 +596,8 @@ class TerminalGroup(BaseAPI):
             return self._post_request(
                 url="/api/1/terminal_groups",
                 data=data,
-                model_response_data=BaseTerminalGroupsModel
+                model_response_data=BaseTerminalGroupsModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -555,8 +608,9 @@ class TerminalGroup(BaseAPI):
                             self.terminal_groups.__name__,
                             f"Не удалось получить регионы: \n{err}")
 
-    def is_alive(self, organization_ids: List[str], terminal_group_ids: List[str], ) -> Union[CustomErrorModel,
-                                                                                              BaseTGIsAliveyModel]:
+    def is_alive(self, organization_ids: List[str], terminal_group_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> \
+    Union[CustomErrorModel,
+          BaseTGIsAliveyModel]:
         """
 
         :param terminal_group_ids:
@@ -577,7 +631,8 @@ class TerminalGroup(BaseAPI):
             return self._post_request(
                 url="/api/1/terminal_groups/is_alive",
                 data=data,
-                model_response_data=BaseTGIsAliveyModel
+                model_response_data=BaseTGIsAliveyModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -590,7 +645,8 @@ class TerminalGroup(BaseAPI):
 
 
 class Address(BaseAPI):
-    def regions(self, organization_ids: List[str], ) -> Union[CustomErrorModel, BaseRegionsModel]:
+    def regions(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BaseRegionsModel]:
         """
         Возвращает регионы, доступные пользователю API-login.
         :return:
@@ -609,7 +665,8 @@ class Address(BaseAPI):
             return self._post_request(
                 url="/api/1/regions",
                 data=data,
-                model_response_data=BaseRegionsModel
+                model_response_data=BaseRegionsModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -620,7 +677,8 @@ class Address(BaseAPI):
                             self.regions.__name__,
                             f"Не удалось получить регионы: \n{err}")
 
-    def cities(self, organization_ids: List[str], ) -> Union[CustomErrorModel, BaseCitiesModel]:
+    def cities(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BaseCitiesModel]:
         """
         Возвращает регионы, доступные пользователю API-login.
         :return:
@@ -639,7 +697,8 @@ class Address(BaseAPI):
             return self._post_request(
                 url="/api/1/cities",
                 data=data,
-                model_response_data=BaseCitiesModel
+                model_response_data=BaseCitiesModel,
+                timeout=timeout
             )
 
 
@@ -652,7 +711,8 @@ class Address(BaseAPI):
                             self.cities.__name__,
                             f"Не удалось получить города: \n{err}")
 
-    def by_city(self, organization_id: str, city_id: str) -> Union[CustomErrorModel, BaseStreetByCityModel]:
+    def by_city(self, organization_id: str, city_id: str, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, BaseStreetByCityModel]:
         """
         Возвращает регионы, доступные пользователю API-login.
         :return:
@@ -668,7 +728,8 @@ class Address(BaseAPI):
             return self._post_request(
                 url="/api/1/streets/by_city",
                 data=data,
-                model_response_data=BaseStreetByCityModel
+                model_response_data=BaseStreetByCityModel,
+                timeout=timeout
             )
 
 
@@ -683,7 +744,8 @@ class Address(BaseAPI):
 
 
 class DeliveryRestrictions(BaseAPI):
-    def delivery_restrictions(self, organization_ids: List[str], ) -> Union[CustomErrorModel,]:
+    def delivery_restrictions(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel,]:
         if not bool(organization_ids):
             raise ParamSetException(self.__class__.__qualname__,
                                     self.delivery_restrictions.__name__,
@@ -697,6 +759,7 @@ class DeliveryRestrictions(BaseAPI):
             return self._post_request(
                 url="/api/1/delivery_restrictions",
                 data=data,
+                timeout=timeout
                 # model_response_data=BaseRemovalTypesModel
             )
         except requests.exceptions.RequestException as err:
@@ -710,7 +773,8 @@ class DeliveryRestrictions(BaseAPI):
 
     def dr_allowed(self, organization_ids: List[str], is_courier_delivery: bool,
                    delivery_address: dict = None, order_location: dict = None, order_items: dict = None,
-                   delivery_date: str = None, delivery_sum: float = None, discount_sum: float = None) -> Union[
+                   delivery_date: str = None, delivery_sum: float = None, discount_sum: float = None,
+                   timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
         CustomErrorModel, BaseRemovalTypesModel]:
         if not bool(organization_ids):
             raise ParamSetException(self.__class__.__qualname__,
@@ -737,6 +801,7 @@ class DeliveryRestrictions(BaseAPI):
             return self._post_request(
                 url="/api/1/delivery_restrictions/allowed",
                 data=data,
+                timeout=timeout
                 # model_response_data=BaseRemovalTypesModel
             )
         except requests.exceptions.RequestException as err:
@@ -751,8 +816,9 @@ class DeliveryRestrictions(BaseAPI):
 
 class Orders(BaseAPI):
     def order_create(self, organization_id: str, terminal_group_id: str, order: dict,
-                     create_order_settings: Optional[int] = None, ) -> Union[CustomErrorModel,
-                                                                             BaseCreatedOrderInfoModel]:
+                     create_order_settings: Optional[int] = None, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel,
+        BaseCreatedOrderInfoModel]:
         """"""
 
         data = {
@@ -768,7 +834,8 @@ class Orders(BaseAPI):
             return self._post_request(
                 url="/api/1/order/create",
                 data=data,
-                model_response_data=BaseCreatedOrderInfoModel
+                model_response_data=BaseCreatedOrderInfoModel,
+                timeout=timeout
 
             )
         except requests.exceptions.RequestException as err:
@@ -783,7 +850,7 @@ class Orders(BaseAPI):
     def order_by_id(self,
                     organization_ids: List[str],
                     order_ids: list,
-                    source_keys: list = None
+                    source_keys: list = None, timeout=BaseAPI.DEFAULT_TIMEOUT
                     ) -> Union[CustomErrorModel, ByIdModel]:
         """
         Получить заказы по идентификаторам.
@@ -812,7 +879,8 @@ class Orders(BaseAPI):
             return self._post_request(
                 url="/api/1/order/by_id",
                 data=data,
-                model_response_data=ByIdModel
+                model_response_data=ByIdModel,
+                timeout=timeout
             )
 
         except requests.exceptions.RequestException as err:
@@ -830,7 +898,7 @@ class Orders(BaseAPI):
                        source_keys: List[str] = None,
                        statuses: List[str] = None,
                        date_from: str = None,
-                       date_to: str = None
+                       date_to: str = None, timeout=BaseAPI.DEFAULT_TIMEOUT
                        ) -> Union[CustomErrorModel, ByIdModel]:
         """
 
@@ -876,7 +944,8 @@ class Orders(BaseAPI):
             return self._post_request(
                 url="/api/1/order/by_table",
                 data=data,
-                model_response_data=ByIdModel
+                model_response_data=ByIdModel,
+                timeout=timeout
             )
 
         except requests.exceptions.RequestException as err:
@@ -891,7 +960,7 @@ class Orders(BaseAPI):
 
 class Deliveries(BaseAPI):
     def delivery_create(self, organization_id: str, order: dict, terminal_group_id: str = None,
-                        create_order_settings: Optional[int] = None, ) -> Union[
+                        create_order_settings: Optional[int] = None, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
         CustomErrorModel, BaseCreatedDeliveryOrderInfoModel]:
         """"""
         data = {
@@ -909,7 +978,8 @@ class Deliveries(BaseAPI):
             return self._post_request(
                 url="/api/1/deliveries/create",
                 data=data,
-                model_response_data=BaseCreatedDeliveryOrderInfoModel
+                model_response_data=BaseCreatedDeliveryOrderInfoModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise PostException(self.__class__.__qualname__,
@@ -924,7 +994,7 @@ class Deliveries(BaseAPI):
                                      organization_id: List[str],
                                      order_id: str,
                                      delivery_status: str = "Delivered",
-                                     delivery_date: datetime = datetime.now()
+                                     delivery_date: datetime = datetime.now(), timeout=BaseAPI.DEFAULT_TIMEOUT
                                      ):
         """
         :param organization_id: Organization ID
@@ -949,7 +1019,8 @@ class Deliveries(BaseAPI):
             return self._post_request(
                 url="/api/1/deliveries/update_order_delivery_status",
                 data=data,
-                model_response_data=BaseResponseModel
+                model_response_data=BaseResponseModel,
+                timeout=timeout
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -962,7 +1033,7 @@ class Deliveries(BaseAPI):
 
     def confirm(self,
                 organization_id: List[str],
-                order_id: str,
+                order_id: str, timeout=BaseAPI.DEFAULT_TIMEOUT
                 ):
         """
         Подвердить статус доставки заказа
@@ -982,6 +1053,7 @@ class Deliveries(BaseAPI):
                 url="/api/1/deliveries/confirm",
                 data=data,
                 model_response_data=BaseResponseModel,
+                timeout=timeout
             )
 
         except requests.exceptions.RequestException as err:
@@ -995,7 +1067,7 @@ class Deliveries(BaseAPI):
 
     def cancel_confirmation(self,
                             organization_id: List[str],
-                            order_id: str,
+                            order_id: str, timeout=BaseAPI.DEFAULT_TIMEOUT
                             ):
         """
         Отменить подтверждение доставки
@@ -1015,7 +1087,8 @@ class Deliveries(BaseAPI):
             return self._post_request(
                 url="/api/1/deliveries/cancel_confirmation",
                 data=data,
-                model_response_data=BaseResponseModel
+                model_response_data=BaseResponseModel,
+                timeout=timeout
             )
 
         except requests.exceptions.RequestException as err:
@@ -1032,7 +1105,7 @@ class Deliveries(BaseAPI):
                                     delivery_date_from: Union[datetime, str],
                                     delivery_date_to: Union[datetime, str] = None,
                                     statuses: list = None,
-                                    source_keys: list = None
+                                    source_keys: list = None, timeout=BaseAPI.DEFAULT_TIMEOUT
                                     ) -> Union[ByDeliveryDateAndStatusModel, CustomErrorModel]:
         """
 
@@ -1090,7 +1163,8 @@ class Deliveries(BaseAPI):
             return self._post_request(
                 url="/api/1/deliveries/by_delivery_date_and_status",
                 data=data,
-                model_response_data=ByDeliveryDateAndStatusModel
+                model_response_data=ByDeliveryDateAndStatusModel,
+                timeout=timeout
             )
 
         except requests.exceptions.RequestException as err:
@@ -1103,13 +1177,13 @@ class Deliveries(BaseAPI):
                                  f"Не удалось: \n{err}")
 
     @experimental("будет дописан в будущем!")
-    def by_revision(self):
+    def by_revision(self, timeout=BaseAPI.DEFAULT_TIMEOUT):
         # Retrieve list of orders changed from the time revision was passed.
         # https://api-ru.iiko.services/api/1/deliveries/by_revision
         pass
 
     @experimental("будет дописан в будущем!")
-    def by_delivery_date_and_phone(self):
+    def by_delivery_date_and_phone(self, timeout=BaseAPI.DEFAULT_TIMEOUT):
         # Retrieve list of orders changed from the time revision was passed.
         # https://api-ru.iiko.services/api/1/deliveries/by_delivery_date_and_phone
         pass
@@ -1130,6 +1204,7 @@ class Deliveries(BaseAPI):
                                                    rows_count: Optional[int] = None,
                                                    source_keys: Optional[List[str]] = None,
                                                    order_ids: Optional[List[Union[str, uuid.UUID]]] = None,
+                                                   timeout=BaseAPI.DEFAULT_TIMEOUT
                                                    ):
         """
 
@@ -1231,6 +1306,7 @@ class Deliveries(BaseAPI):
                 url="/api/1/deliveries/by_delivery_date_and_source_key_and_filter",
                 data=data,
                 model_response_data=ByDeliveryDateAndSourceKeyAndFilter,
+                timeout=timeout
             )
 
         except requests.exceptions.RequestException as err:
@@ -1245,7 +1321,7 @@ class Deliveries(BaseAPI):
 
 class Notifications(BaseAPI):
     def send(self, order_source: str, order_id: str, additional_info: str, organization_id: str,
-             message_type: str = "delivery_attention"):
+             message_type: str = "delivery_attention", timeout=BaseAPI.DEFAULT_TIMEOUT):
         """
 
         :param order_source:
@@ -1269,7 +1345,8 @@ class Notifications(BaseAPI):
             return self._post_request(
                 url="/api/1/notifications/send",
                 data=data,
-                model_response_data=BaseResponseModel
+                model_response_data=BaseResponseModel,
+                timeout=timeout
             )
 
         except requests.exceptions.RequestException as err:
@@ -1284,7 +1361,7 @@ class Notifications(BaseAPI):
 
 class Employees(BaseAPI):
 
-    def couriers(self, organization_id: str, ):
+    def couriers(self, organization_id: str, timeout=BaseAPI.DEFAULT_TIMEOUT):
 
         #     https://api-ru.iiko.services/api/1/employees/couriers
         data = {
@@ -1296,7 +1373,8 @@ class Employees(BaseAPI):
             return self._post_request(
                 url="/api/1/employees/couriers",
                 data=data,
-                model_response_data=CouriersModel
+                model_response_data=CouriersModel,
+                timeout=timeout
             )
 
         except requests.exceptions.RequestException as err:
@@ -1309,23 +1387,22 @@ class Employees(BaseAPI):
                                 f"Не удалось: \n{err}")
 
     @experimental
-    def employees_couriers_locations_by_time_offset(self):
+    def employees_couriers_locations_by_time_offset(self, timeout=BaseAPI.DEFAULT_TIMEOUT):
         pass
 
     @experimental
-    def employees_couriers_by_role(self):
+    def employees_couriers_by_role(self, timeout=BaseAPI.DEFAULT_TIMEOUT):
         pass
 
     @experimental
-    def employees_couriers_active_location_by_terminal(self):
+    def employees_couriers_active_location_by_terminal(self, timeout=BaseAPI.DEFAULT_TIMEOUT):
         pass
 
     @experimental
-    def employees_couriers_active_location(self):
+    def employees_couriers_active_location(self, timeout=BaseAPI.DEFAULT_TIMEOUT):
         pass
 
-
-    def employees_info(self, organization_id: str, id: str):
+    def employees_info(self, organization_id: str, id: str, timeout=BaseAPI.DEFAULT_TIMEOUT):
         data = {
             "organizationId": organization_id,
             "id": id
@@ -1337,6 +1414,7 @@ class Employees(BaseAPI):
                 url="/api/1/employees/info",
                 data=data,
                 model_response_data=BaseEInfoModel,
+                timeout=timeout
             )
 
         except requests.exceptions.RequestException as err:
@@ -1347,7 +1425,6 @@ class Employees(BaseAPI):
             raise PostException(self.__class__.__qualname__,
                                 self.couriers.__name__,
                                 f"Не удалось: \n{err}")
-
 
 
 class IikoTransport(Orders, Deliveries, Employees, Address, DeliveryRestrictions, TerminalGroup, Menu, Dictionaries,
