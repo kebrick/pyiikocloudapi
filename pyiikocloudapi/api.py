@@ -202,10 +202,11 @@ class BaseAPI:
         if response.status_code == 401:
             self.__get_access_token()
             return self._post_request(url=url, data=data,timeout=timeout,model_response_data=model_response_data,model_error=model_error)
-        response_data: dict = json.loads(response.content)
+
         if self.__debug:
             self.logger.debug(
-                f"Входные данные:\n{response.request.url=}\n{response.request.body=}\n{response.request.headers=}\n\nВыходные данные:\n{response.headers=}\n{response_data=}\n\n")
+                f"Входные данные:\n{response.request.url=}\n{response.request.body=}\n{response.request.headers=}\n\nВыходные данные:\n{response.headers=}\n{response.content=}\n\n{response.json()=}\n\n")
+        response_data: dict = json.loads(response.content)
         self.__last_data = response_data
         if response_data.get("errorDescription", None) is not None:
             error_model = model_error.parse_obj(response_data)
