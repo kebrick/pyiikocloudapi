@@ -204,8 +204,12 @@ class BaseAPI:
             return self._post_request(url=url, data=data,timeout=timeout,model_response_data=model_response_data,model_error=model_error)
 
         if self.__debug:
-            self.logger.debug(
-                f"Входные данные:\n{response.request.url=}\n{response.request.body=}\n{response.request.headers=}\n\nВыходные данные:\n{response.headers=}\n{response.content=}\n\n{response.json()=}\n\n")
+            try:
+
+                self.logger.debug(
+                    f"Входные данные:\n{response.request.url=}\n{response.request.body=}\n{response.request.headers=}\n\nВыходные данные:\n{response.headers=}\n{response.content=}\n\n")
+            except Exception as err:
+                self.logger.debug(f"{err=}")
         response_data: dict = json.loads(response.content)
         self.__last_data = response_data
         if response_data.get("errorDescription", None) is not None:
