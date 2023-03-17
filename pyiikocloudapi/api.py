@@ -976,7 +976,7 @@ class Deliveries(BaseAPI):
             data["terminalGroupId"] = terminal_group_id
 
         if create_order_settings is not None:
-            data["createOrderSettings"] = create_order_settings
+            data["createOrderSettings"] = {"transportToFrontTimeout":create_order_settings}
 
         try:
 
