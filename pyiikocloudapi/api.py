@@ -19,15 +19,17 @@ class BaseAPI:
 
     def __init__(self, api_login: str, session: Optional[requests.Session] = None, debug: bool = False,
                  base_url: str = None, working_token: str = None, base_headers: dict = None, logger: Optional[
-            logging.Logger] =  None):
+            logging.Logger] = None, return_dict: bool = False):
         """
 
         :param api_login: login api iiko cloud
         :param session: session object
-        :param debug: print dict reponse
+        :param debug: logging dict response
         :param base_url: url iiko cloud api
         :param working_token: Initialize an object based on a working token, that is, without requesting a new one
         :param base_headers: base header for request in iiko cloud api
+        :param logger: your object Logger
+        :param return_dict: return a dictionary instead of models
         """
 
         if session is not None:
@@ -42,6 +44,7 @@ class BaseAPI:
         self.__organizations_ids_model: Optional[BaseOrganizationsModel] = None
         self.__organizations_ids: Optional[List[str]] = None
         self.__strfdt = "%Y-%m-%d %H:%M:%S.000"
+        self.__return_dict = return_dict
         self.logger = logger if logger is not None else logging.getLogger()
 
         self.__base_url = "https://api-ru.iiko.services" if base_url is None else base_url
@@ -201,7 +204,8 @@ class BaseAPI:
                                        headers=self.headers)
         if response.status_code == 401:
             self.__get_access_token()
-            return self._post_request(url=url, data=data,timeout=timeout,model_response_data=model_response_data,model_error=model_error)
+            return self._post_request(url=url, data=data, timeout=timeout, model_response_data=model_response_data,
+                                      model_error=model_error)
 
         if self.__debug:
             try:
@@ -212,6 +216,8 @@ class BaseAPI:
                 self.logger.debug(f"{err=}")
         response_data: dict = json.loads(response.content)
         self.__last_data = response_data
+        if self.__return_dict:
+            return response_data
         if response_data.get("errorDescription", None) is not None:
             error_model = model_error.parse_obj(response_data)
             error_model.status_code = response.status_code
@@ -614,8 +620,8 @@ class TerminalGroup(BaseAPI):
                             f"Не удалось получить регионы: \n{err}")
 
     def is_alive(self, organization_ids: List[str], terminal_group_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> \
-    Union[CustomErrorModel,
-          BaseTGIsAliveyModel]:
+        Union[CustomErrorModel,
+              BaseTGIsAliveyModel]:
         """
 
         :param terminal_group_ids:
@@ -976,7 +982,7 @@ class Deliveries(BaseAPI):
             data["terminalGroupId"] = terminal_group_id
 
         if create_order_settings is not None:
-            data["createOrderSettings"] = {"transportToFrontTimeout":create_order_settings}
+            data["createOrderSettings"] = {"transportToFrontTimeout": create_order_settings}
 
         try:
 
@@ -1432,6 +1438,116 @@ class Employees(BaseAPI):
                                 f"Не удалось: \n{err}")
 
 
+class Customers(BaseAPI):
+    def customer_info(self, organization_id: str, identifier: str, type: TypeRCI, timeout=BaseAPI.DEFAULT_TIMEOUT):
+        """
+
+        :param organization_id:
+        :param identifier: Depending on type
+        :param type: phone or  cardTrack or cardNumber or email or id
+        :return:
+        """
+        data = {
+            "organizationId": organization_id,
+            "type": type,
+        }
+        if type == TypeRCI.phone.value:
+            data[TypeRCI.phone.value] = identifier
+        elif type == TypeRCI.card_track.value:
+            data[TypeRCI.card_track.value] = identifier
+        elif type == TypeRCI.card_number.value:
+            data[TypeRCI.card_number.value] = identifier
+        elif type == TypeRCI.email.value:
+            data[TypeRCI.email.value] = identifier
+        elif type == TypeRCI.id.value:
+            data[TypeRCI.id.value] = identifier
+
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/customer/info",
+                data=data,
+                model_response_data=CustomerInfoModel,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_info.__name__,
+                                f"Не удалось получить информацию о клиенте: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_info.__name__,
+                                f"Не удалось: \n{err}")
+
+    def customer_create_or_update(
+            self,
+            organization_id: str,
+            phone: Optional[str] = None,
+            card_track: Optional[str] = None,
+            card_number: Optional[str] = None,
+            name: Optional[str] = None,
+            middle_name: Optional[str] = None,
+            sur_name: Optional[str] = None,
+            birthday: Optional[str] = None,
+            email: Optional[str] = None,
+            sex: Optional[str] = None,
+            consent_status: Optional[str] = None,
+            should_receive_promo_actions_info: Optional[bool] = None,
+            referrer_id: Optional[str] = None,
+            user_data: Optional[str] = None,
+            id: str = None,
+            timeout=BaseAPI.DEFAULT_TIMEOUT):
+
+        data = {
+            "organizationId": organization_id,
+        }
+        if id is not None:
+            data['id'] = id
+        if phone is not None:
+            data['phone'] = phone
+        if card_track is not None:
+            data['cardTrack'] = card_track
+        if card_number is not None:
+            data['cardNumber'] = card_number
+        if name is not None:
+            data['name'] = name
+        if middle_name is not None:
+            data['middleName'] = middle_name
+        if sur_name is not None:
+            data['surName'] = sur_name
+        if birthday is not None:
+            data['birthday'] = birthday
+        if email is not None:
+            data['email'] = email
+        if sex is not None:
+            data['sex'] = sex
+        if consent_status is not None:
+            data['consentStatus'] = consent_status
+        if should_receive_promo_actions_info is not None:
+            data['shouldReceivePromoActionsInfo'] = should_receive_promo_actions_info
+        if referrer_id is not None:
+            data['referrerId'] = referrer_id
+        if user_data is not None:
+            data['userData'] = user_data
+
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/customer/create_or_update",
+                data=data,
+                model_response_data=CustomerCreateOrUpdateModel,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_create_or_update.__name__,
+                                f"Не удалось создать или обновить клиента: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_create_or_update.__name__,
+                                f"Не удалось: \n{err}")
+
+
 class IikoTransport(Orders, Deliveries, Employees, Address, DeliveryRestrictions, TerminalGroup, Menu, Dictionaries,
-                    Commands, Notifications):
+                    Commands, Notifications, Customers):
     pass

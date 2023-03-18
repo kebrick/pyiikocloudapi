@@ -1000,3 +1000,52 @@ class EIEmployeeModel(BaseModel):
 
 class BaseEInfoModel(BaseResponseModel):
     employee_info: EIEmployeeModel = Field(alias="employeeInfo")
+
+class TypeRCI(Enum):
+    phone = 'phone'
+    card_track = 'cardTrack'
+    card_number = 'cardNumber'
+    email = 'email'
+    id = 'id'
+
+class CardCIModel(BaseModel):
+    id: str
+    track: str
+    number: str
+    valid_to_date: Optional[str] = Field(alias='validToDate')
+class CategoriesCIModel(IdNameModel):
+    is_active: bool = Field(alias="isActive")
+    is_default_for_new_guests: bool = Field(alias="isDefaultForNewGuests")
+class WalletBalanceCIModel(IdNameModel):
+    type: int
+    balance: float
+
+class CustomerInfoModel(BaseModel):
+    id: str
+    referrer_id: Optional[str] = Field(alias='referrerId')
+    name: Optional[str]
+    surname: Optional[str]
+    middle_name: Optional[str] = Field(alias="middleName")
+    comment: Optional[str]
+    phone: Optional[str]
+    culture_name: Optional[str] = Field(alias="cultureName")
+    birthday: Optional[str]
+    email: Optional[str]
+    sex: int
+    consent_status: int = Field(alias="consentStatus")
+    anonymized: bool
+    cards: Optional[List[CardCIModel]]
+    categories: Optional[List[CategoriesCIModel]]
+    wallet_balances: Optional[List[WalletBalanceCIModel]] = Field(alias="walletBalances")
+    user_data: Optional[str] = Field(alias="userData")
+    shouldReceivePromoActionsInfo: Optional[bool] = Field(alias="shouldReceivePromoActionsInfo")
+    shouldReceiveLoyaltyInfo: Optional[bool] = Field(alias="shouldReceiveLoyaltyInfo")
+    shouldReceiveOrderStatusInfo: Optional[bool] = Field(alias="shouldReceiveOrderStatusInfo")
+    personalDataConsentFrom: Optional[str] = Field(alias="personalDataConsentFrom")
+    personalDataConsentTo: Optional[str] = Field(alias="personalDataConsentTo")
+    personalDataProcessingFrom: Optional[str] = Field(alias="personalDataProcessingFrom")
+    personalDataProcessingTo: Optional[str] = Field(alias="personalDataProcessingTo")
+    isDeleted: Optional[bool] = Field(alias="isDeleted")
+
+class CustomerCreateOrUpdateModel(BaseModel):
+    id: str

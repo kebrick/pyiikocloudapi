@@ -2,7 +2,7 @@ from setuptools import setup
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
-VERSION = '0.0.9'
+VERSION = '0.0.10'
 setup(
     name='pyiikocloudapi',
     version=VERSION,
@@ -21,6 +21,6 @@ setup(
     },
     install_requires=['requests', 'pydantic'],
 
-    python_requires='>=3.8',
+    python_requires='>=3.7',
     zip_safe=False
 )
