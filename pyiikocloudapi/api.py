@@ -461,6 +461,58 @@ class Dictionaries(BaseAPI):
                             self.removal_types.__name__,
                             f"Не удалось получить подсказки для группы api-logins rms: \n{err}")
 
+    def coupons_series(self, organization_id: str) -> Union[
+        CustomErrorModel, SeriesWithNotActivatedCoupon]:
+        if not bool(organization_id):
+            raise ParamSetException(self.__class__.__qualname__,
+                                    self.coupons_series.__name__,
+                                    f"Отсутствует аргумент id организации")
+        data = {
+            "organizationId": organization_id,
+        }
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/coupons/series",
+                data=data,
+                model_response_data=SeriesWithNotActivatedCoupon,
+                json_format=False,
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.coupons_series.__name__,
+                                 f"Не удалось получить промокоды: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.coupons_series.__name__,
+                            f"Не удалось получить промокоды: \n{err}")
+
+    def coupons_info(self, organization_id: str, number: str, series: str = None) -> Union[
+        CustomErrorModel, BaseCouponInfo]:
+        if not bool(organization_id):
+            raise ParamSetException(self.__class__.__qualname__,
+                                    self.coupons_info.__name__,
+                                    f"Отсутствует аргумент id организации")
+        data = {
+            "number": number,
+            "series": series,
+            "organizationId": organization_id,
+        }
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/coupons/info",
+                data=data,
+                model_response_data=BaseCouponInfo,
+                json_format=False,
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.coupons_info.__name__,
+                                 f"Не удалось получить промокоды: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.coupons_info.__name__,
+                            f"Не удалось получить промокоды: \n{err}")
+
 
 class Menu(BaseAPI):
     def nomenclature(self, organization_id: str, start_revision: int = None, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
@@ -755,8 +807,7 @@ class Address(BaseAPI):
 
 
 class DeliveryRestrictions(BaseAPI):
-    def delivery_restrictions(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
-        CustomErrorModel,]:
+    def delivery_restrictions(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[CustomErrorModel,]:
         if not bool(organization_ids):
             raise ParamSetException(self.__class__.__qualname__,
                                     self.delivery_restrictions.__name__,
