@@ -900,6 +900,20 @@ class DiscountModel(BaseModel):
 class BaseDiscountsModel(BaseResponseModel):
     discounts: List[DiscountModel]
 
+class CouponInfo(BaseModel):
+    id: str
+    number: Optional[str]
+    seriesName: Optional[str]
+    seriesId: Optional[str]
+    whenActivated: Optional[str]
+    isDeleted: Optional[str]
+
+class SeriesWithNotActivatedCoupon(BaseModel):
+    coupons: List[CouponInfo] = Field(alias="seriesWithNotActivatedCoupons")
+
+class BaseCouponInfo(BaseModel):
+    coupons: List[CouponInfo] = Field(alias="couponInfo")
+
 
 # Payment Types
 class PaymentTypeModel(IdNameModel):
