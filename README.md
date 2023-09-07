@@ -1,17 +1,42 @@
-# pyiikocloudapi
-##Python iiko cloud api сервис.
+# pyiikocloudapi - python iikoCloud API сервис
 
-#### iiko Transport(iiko Cloud API) по словам _**разработчиков**_ это по сути горячие хранилище без доступа к данным БД
+![](https://www.python.org/static/img/python-logo.png) 
 
+Установка
+============
 
-### Инфо
+Пользуем pip:
+    
+```
+pip install pyiikocloudapi
+```
+
+###Зависимости
+
+    requests
+    pydantic
+
+Как использовать
+============
 Все названия методов соответствуют названию в ссылке (смотрите документацию iiko Transport).
 
-**Пример названия метода получения маркера доступа:** _/api/1/auth/**`access_token`**_ or _/api/1/order/create - **`order_create`**_
 
-`sourceKey` это "Источник заказа" из настроек в iikoWeb
+**Пример названия метода:** 
 
-#### Example
+- _/api/1/auth/        - `access_token`_
+- _/api/1/order/create - `order_create`_
+
+
+
+Если вам нужно чтобы ответ был в dict то либо 
+    
+    api = IikoTransport(api_login, )_(++08=000000000return_dict=True)
+
+    # Либо
+    api.return_dict = True
+
+Example
+============
     from pyiikocloudapi import IikoTransport
     from pyiikocloudapi.models import CouriersModel
 
@@ -27,6 +52,13 @@
 Каждый метод проверяет время жизни маркера доступа, если время жизни маркера прошло то будет автоматически запрошен заново.
 
 **Время жизни маркера доступа равно ~60 минутам.**
+
+
+###Доп. инфа
+iiko Transport(iiko Cloud API) по словам _**разработчиков**_ это по сути горячие хранилище без доступа к данным БД
+
+`sourceKey` это "Источник заказа" из настроек в iikoWeb
+
 
 ### Реализованные методы iiko Transport(iiko Cloud API) 
 - Authorization
@@ -121,4 +153,20 @@
   - [ ] [Retrieve banquets/reserves statuses by IDs.](https://api-ru.iiko.services/#tag/Banquetsreserves/paths/~1api~11~1reserve~1status_by_id/post)
   - [ ] [WebHook notification about reserve update. Webhook ???](https://api-ru.iiko.services/#tag/Banquetsreserves/paths/iikoTransport.PublicApi.Contracts.WebHooks.ReserveUpdateWebHookEventInfo/post)
   - [ ] [WebHook notification about reserve saving error. Webhook ??? ](https://api-ru.iiko.services/#tag/Banquetsreserves/paths/iikoTransport.PublicApi.Contracts.WebHooks.ReserveErrorWebHookEventInfo/post)
+- [Discounts and promotions](https://api-ru.iiko.services/#tag/Discounts-and-promotions)
+  - [ ] [Calculate discounts and other loyalty items for an order.](https://api-ru.iiko.services/#tag/Discounts-and-promotions/paths/~1api~11~1loyalty~1iiko~1calculate/post)
+  - [ ] [Get all organization's manual conditions.](https://api-ru.iiko.services/#tag/Discounts-and-promotions/paths/~1api~11~1loyalty~1iiko~1manual_condition/post)
+  - [ ] [Get all loyalty programs for organization.](https://api-ru.iiko.services/#tag/Discounts-and-promotions/paths/~1api~11~1loyalty~1iiko~1program/post)
+  - [x] [Get information about the specified coupon.](https://api-ru.iiko.services/#tag/Discounts-and-promotions/paths/~1api~11~1loyalty~1iiko~1coupons~1info/post)
+  - [x] [Get a list of coupon series in which there are not deleted and not activated coupons.](https://api-ru.iiko.services/#tag/Discounts-and-promotions/paths/~1api~11~1loyalty~1iiko~1coupons~1series/post)
+  - [ ] [Get list of non-activated coupons.](https://api-ru.iiko.services/#tag/Discounts-and-promotions/paths/~1api~11~1loyalty~1iiko~1coupons~1by_series/post)
+- [Customers](https://api-ru.iiko.services/#tag/Customers)
+  - [x] [Get customer info by specified criterion.](https://api-ru.iiko.services/#tag/Customers/paths/~1api~11~1loyalty~1iiko~1customer~1info/post)
+  - [x] [Create or update customer info by id or phone or card track.](https://api-ru.iiko.services/#tag/Customers/paths/~1api~11~1loyalty~1iiko~1customer~1create_or_update/post)
+  - [ ] [Add new customer for program.](https://api-ru.iiko.services/#tag/Customers/paths/~1api~11~1loyalty~1iiko~1customer~1program~1add/post)
+  - [ ] [Add new card for customer.](https://api-ru.iiko.services/#tag/Customers/paths/~1api~11~1loyalty~1iiko~1customer~1card~1add/post)
+  - [ ] [Delete existing card for customer.](https://api-ru.iiko.services/#tag/Customers/paths/~1api~11~1loyalty~1iiko~1customer~1card~1remove/post)
+  - [ ] [Hold customer's money in loyalty program. Payment will be process on POS during processing of an order.](https://api-ru.iiko.services/#tag/Customers/paths/~1api~11~1loyalty~1iiko~1customer~1wallet~1hold/post)
+  - [ ] [Refill customer balance.](https://api-ru.iiko.services/#tag/Customers/paths/~1api~11~1loyalty~1iiko~1customer~1wallet~1topup/post)
+  - [ ] [Withdraw customer balance.](https://api-ru.iiko.services/#tag/Customers/paths/~1api~11~1loyalty~1iiko~1customer~1wallet~1chargeoff/post)
 - ....

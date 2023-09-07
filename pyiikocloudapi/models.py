@@ -437,7 +437,7 @@ class TGIsAliveItemModel(BaseModel):
 
 
 class BaseTGIsAliveyModel(BaseResponseModel):
-    is_alive_status: Optional[List[StreetsItemModel]] = Field(alias="isAliveStatus")
+    is_alive_status: Optional[List[TGIsAliveItemModel]] = Field(alias="isAliveStatus")
 
 
 # class COrderCustomerModel(BaseModel):
@@ -963,7 +963,6 @@ class BaseTipsTypesModel(BaseResponseModel):
 
 
 class BaseStatusModel(BaseModel):
-    exception: Optional[Any]
     state: COICreationStatusModel
 
 

@@ -154,6 +154,14 @@ class BaseAPI:
         self.__headers = value
 
     @property
+    def return_dict(self):
+        return self.__return_dict
+
+    @headers.setter
+    def headers(self, value: str):
+        self.__return_dict = value
+
+    @property
     def timeout(self):
         return self.__headers.get("Timeout")
 
@@ -461,6 +469,8 @@ class Dictionaries(BaseAPI):
                             self.removal_types.__name__,
                             f"Не удалось получить подсказки для группы api-logins rms: \n{err}")
 
+
+class DiscountPromotion(BaseAPI):
     def coupons_series(self, organization_id: str) -> Union[
         CustomErrorModel, SeriesWithNotActivatedCoupon]:
         if not bool(organization_id):
@@ -475,7 +485,6 @@ class Dictionaries(BaseAPI):
                 url="/api/1/loyalty/iiko/coupons/series",
                 data=data,
                 model_response_data=SeriesWithNotActivatedCoupon,
-                json_format=False,
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -502,7 +511,6 @@ class Dictionaries(BaseAPI):
                 url="/api/1/loyalty/iiko/coupons/info",
                 data=data,
                 model_response_data=BaseCouponInfo,
-                json_format=False,
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -807,7 +815,8 @@ class Address(BaseAPI):
 
 
 class DeliveryRestrictions(BaseAPI):
-    def delivery_restrictions(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[CustomErrorModel,]:
+    def delivery_restrictions(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel,]:
         if not bool(organization_ids):
             raise ParamSetException(self.__class__.__qualname__,
                                     self.delivery_restrictions.__name__,
@@ -1531,23 +1540,23 @@ class Customers(BaseAPI):
                                 f"Не удалось: \n{err}")
 
     def customer_create_or_update(
-            self,
-            organization_id: str,
-            phone: Optional[str] = None,
-            card_track: Optional[str] = None,
-            card_number: Optional[str] = None,
-            name: Optional[str] = None,
-            middle_name: Optional[str] = None,
-            sur_name: Optional[str] = None,
-            birthday: Optional[str] = None,
-            email: Optional[str] = None,
-            sex: Optional[str] = None,
-            consent_status: Optional[str] = None,
-            should_receive_promo_actions_info: Optional[bool] = None,
-            referrer_id: Optional[str] = None,
-            user_data: Optional[str] = None,
-            id: str = None,
-            timeout=BaseAPI.DEFAULT_TIMEOUT):
+        self,
+        organization_id: str,
+        phone: Optional[str] = None,
+        card_track: Optional[str] = None,
+        card_number: Optional[str] = None,
+        name: Optional[str] = None,
+        middle_name: Optional[str] = None,
+        sur_name: Optional[str] = None,
+        birthday: Optional[str] = None,
+        email: Optional[str] = None,
+        sex: Optional[str] = None,
+        consent_status: Optional[str] = None,
+        should_receive_promo_actions_info: Optional[bool] = None,
+        referrer_id: Optional[str] = None,
+        user_data: Optional[str] = None,
+        id: str = None,
+        timeout=BaseAPI.DEFAULT_TIMEOUT):
 
         data = {
             "organizationId": organization_id,
@@ -1600,5 +1609,5 @@ class Customers(BaseAPI):
 
 
 class IikoTransport(Orders, Deliveries, Employees, Address, DeliveryRestrictions, TerminalGroup, Menu, Dictionaries,
-                    Commands, Notifications, Customers):
+                    DiscountPromotion, Commands, Notifications, Customers):
     pass
