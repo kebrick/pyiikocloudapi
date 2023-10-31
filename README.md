@@ -30,7 +30,7 @@ pip install pyiikocloudapi
 
 Если вам нужно чтобы ответ был в dict то либо 
     
-    api = IikoTransport(api_login, )_(++08=000000000return_dict=True)
+    api = IikoTransport(api_login, return_dict=True)
 
     # Либо
     api.return_dict = True
