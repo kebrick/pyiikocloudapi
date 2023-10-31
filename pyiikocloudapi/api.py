@@ -1606,6 +1606,57 @@ class Customers(BaseAPI):
             raise PostException(self.__class__.__qualname__,
                                 self.customer_create_or_update.__name__,
                                 f"Не удалось: \n{err}")
+    def customer_program_add(self, customer_id, program_id, organization_id,timeout=BaseAPI.DEFAULT_TIMEOUT):
+
+        data = {
+            "customerId": customer_id,
+            "programId": program_id,
+            "organizationId": organization_id,
+        }
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/customer/program/add",
+                data=data,
+                model_response_data=CustomerProgramAddResponse,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_program_add.__name__,
+                                f"Не удалось подключить клиента к программе: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_program_add.__name__,
+                                f"Не удалось: \n{err}")
+
+    def customer_card_add(self, customer_id, card_track, card_number, organization_id,timeout=BaseAPI.DEFAULT_TIMEOUT):
+
+        data = {
+            "customerId": customer_id,
+            "cardTrack": card_track,
+            "cardNumber": card_number,
+            "organizationId": organization_id,
+        }
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/customer/card/add",
+                data=data,
+                model_response_data=None,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_card_add.__name__,
+                                f"Не удалось подключить карту клиенту: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_card_add.__name__,
+                                f"Не удалось: \n{err}")
+
+
+
 
 
 class IikoTransport(Orders, Deliveries, Employees, Address, DeliveryRestrictions, TerminalGroup, Menu, Dictionaries,

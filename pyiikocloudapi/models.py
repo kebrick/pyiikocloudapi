@@ -1062,3 +1062,5 @@ class CustomerInfoModel(BaseModel):
 
 class CustomerCreateOrUpdateModel(BaseModel):
     id: str
+class CustomerProgramAddResponse(BaseModel):
+    user_wallet_id: str = Field(alias="userWalletId")
