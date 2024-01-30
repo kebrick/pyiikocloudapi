@@ -893,7 +893,7 @@ class Orders(BaseAPI):
         """"""
 
         data = {
-            "organizationIds": organization_id,
+            "organizationId": organization_id, #'organizationId' instead of 'organizationIds'. 'errorDescription': "Required property 'organizationId' not found in JSON.
             "terminalGroupId": terminal_group_id,
             "order": order,
         }
