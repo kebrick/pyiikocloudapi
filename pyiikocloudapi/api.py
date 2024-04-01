@@ -587,12 +587,69 @@ class Menu(BaseAPI):
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
-                                 self.nomenclature.__name__,
+                                 self.menu_by_id.__name__,
                                  f"Не удалось получить внешнее меню по ID.: \n{err}")
         except TypeError as err:
             raise TypeError(self.__class__.__qualname__,
-                            self.nomenclature.__name__,
+                            self.menu_by_id.__name__,
                             f"Не удалось получить внешнее меню по ID.: \n{err}")
+    def stop_lists(self, organization_ids: List[str], return_size: bool = False,
+                   terminal_groups_ids: List[str] = None,
+                   timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, StopListsResponse]:
+
+        data = {
+            "organizationIds": organization_ids,
+            "returnSize": return_size,
+        }
+
+        if terminal_groups_ids is not None:
+            data["terminalGroupsIds"] = terminal_groups_ids
+
+        try:
+
+            return self._post_request(
+                url="/api/1/stop_lists",
+                data=data,
+                model_response_data=StopListsResponse,
+                timeout=timeout
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.stop_lists.__name__,
+                                 f"Не удалось получить товары, которых нет в наличии: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.stop_lists.__name__,
+                            f"Не удалось получить товары, которых нет в наличии: \n{err}")
+    def stop_lists_check(self, organization_id: str,  terminal_group_id: str,
+                         items: dict,
+                   timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomErrorModel, CheckStopListsResponse]:
+        """"""
+
+        data = {
+            "organizationId": organization_id,
+            "terminalGroupId": terminal_group_id,
+            "items": items
+        }
+
+        try:
+
+            return self._post_request(
+                url="/api/1/stop_lists/check",
+                data=data,
+                model_response_data=CheckStopListsResponse,
+                timeout=timeout
+            )
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.stop_lists_check.__name__,
+                                 f"Не удалось проверить товары в списке отсутствующих на складе.: \n{err}")
+        except TypeError as err:
+            raise TypeError(self.__class__.__qualname__,
+                            self.stop_lists_check.__name__,
+                            f"Не удалось проверить товары в списке отсутствующих на складе.: \n{err}")
 
     def combo(self, organization_id: str, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[CustomErrorModel, BaseComboModel]:
 
@@ -1499,7 +1556,7 @@ class Employees(BaseAPI):
 
 
 class Customers(BaseAPI):
-    def customer_info(self, organization_id: str, identifier: str, type: TypeRCI, timeout=BaseAPI.DEFAULT_TIMEOUT):
+    def customer_info(self, organization_id: str, identifier: str, type: str, timeout=BaseAPI.DEFAULT_TIMEOUT)-> Union[CustomerInfoModel, CustomErrorModel]:
         """
 
         :param organization_id:

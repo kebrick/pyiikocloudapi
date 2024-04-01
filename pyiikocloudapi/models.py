@@ -60,6 +60,41 @@ class OrganizationModel(IdNameModel):
     def __str__(self):
         return self.name
 
+class OrganizationExtendedModel(IdNameModel):
+    class ResponseTypeEnum(str, Enum):
+        simple = "Simple"
+        extended = "Extended"
+
+    class OAddressFormatTypeEnum(str, Enum):
+        legacy = "Legacy"
+        city = "City"
+        international = "International"
+        int_no_postcode = "IntNoPostcode"
+
+    country: Optional[str]
+    restaurant_address: Optional[str] = Field(alias="restaurantAddress")
+    latitude: Optional[Decimal]
+    longitude: Optional[Decimal]
+    use_uae_addressing_system: Optional[bool] = Field(alias="useUaeAddressingSystem")
+    version: Optional[str]
+    currency_iso_name: Optional[str] = Field(alias="currencyIsoName")
+    currency_minimum_denomination: Optional[Decimal] = Field(alias="currencyMinimumDenomination")
+    country_phone_code: Optional[str] = Field(alias="countryPhoneCode")
+    marketing_source_required_in_delivery: Optional[bool] = Field(alias="marketingSourceRequiredInDelivery")
+    default_delivery_city_id: Optional[str] = Field(alias="defaultDeliveryCityId")
+    delivery_city_ids: Optional[List[str]] = Field(alias="deliveryCityIds")
+    delivery_service_type: Optional[str] = Field(alias="deliveryServiceType")
+    default_call_center_payment_type_id: Optional[str] = Field(alias="defaultCallCenterPaymentTypeId")
+    order_item_comment_enabled: Optional[bool] = Field(alias="orderItemCommentEnabled")
+    inn: Optional[str]
+    addressFormatType: Optional[OAddressFormatTypeEnum] = Field(alias="addressFormatType")
+    is_confirmation_enabled: Optional[bool] = Field(alias="isConfirmationEnabled")
+    confirm_allowed_interval_in_minutes: Optional[int] = Field(alias="confirmAllowedIntervalInMinutes")
+    response_type: ResponseTypeEnum = Field(alias="responseType")
+
+    def __str__(self):
+        return self.name
+
 
 
 class BaseOrganizationsModel(BaseResponseModel):
@@ -1064,3 +1099,24 @@ class CustomerCreateOrUpdateModel(BaseModel):
     id: str
 class CustomerProgramAddResponse(BaseModel):
     user_wallet_id: str = Field(alias="userWalletId")
+class ItemsTerminalGroupStopListResponse(BaseModel):
+    balance: Decimal
+    product_id: str = Field(alias="productId")
+    size_id: Optional[str] = Field(alias="sizeId")
+class ItemsTerminalGroupStopListsResponse(BaseModel):
+    terminal_group_id: Optional[str] = Field(alias="terminalGroupId")
+    items: Optional[List[ItemsTerminalGroupStopListResponse]]
+class TerminalGroupStopListsResponse(BaseModel):
+    organization_id: str = Field(alias='organizationId')
+    items: Optional[List[ItemsTerminalGroupStopListsResponse]]
+
+class StopListsResponse(BaseResponseModel):
+    terminal_group_stop_lists: str = Field(alias="terminalGroupStopLists")
+
+class RejectedItemsCSLResponse(BaseModel):
+    balance: Decimal
+    product_id: str = Field(alias="productId")
+    size_id: Optional[str] = Field(alias="sizeId")
+
+class CheckStopListsResponse(BaseResponseModel):
+    rejected_items: Optional[List[RejectedItemsCSLResponse]] = Field(alias="rejectedItems")
