@@ -1000,7 +1000,7 @@ class BaseStatusExceptModel(BaseModel):
     message: Optional[str]
 class BaseStatusModel(BaseModel):
     state: COICreationStatusModel
-    exception: BaseStatusExceptModel
+    exception: Optional[BaseStatusExceptModel]
 
 
 class CSGProductModel(BaseModel):
