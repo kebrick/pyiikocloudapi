@@ -996,9 +996,11 @@ class TipTypeModel(IdNameModel):
 class BaseTipsTypesModel(BaseResponseModel):
     tips_types: List[TipTypeModel] = Field(alias="tipsTypes")
 
-
+class BaseStatusExceptModel(BaseModel):
+    message: Optional[str]
 class BaseStatusModel(BaseModel):
     state: COICreationStatusModel
+    exception: BaseStatusExceptModel
 
 
 class CSGProductModel(BaseModel):

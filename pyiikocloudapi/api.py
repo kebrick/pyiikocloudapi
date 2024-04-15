@@ -977,7 +977,7 @@ class Orders(BaseAPI):
 
     def order_by_id(self,
                     organization_ids: List[str],
-                    order_ids: List[str],
+                    order_ids: List[str] = None,
                     pos_order_ids: List[str] = None,
                     return_external_data_keys: List[str] = None,
                     source_keys: list = None, timeout=BaseAPI.DEFAULT_TIMEOUT
