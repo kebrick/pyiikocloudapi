@@ -977,14 +977,18 @@ class Orders(BaseAPI):
 
     def order_by_id(self,
                     organization_ids: List[str],
-                    order_ids: list,
+                    order_ids: List[str],
+                    pos_order_ids: List[str] = None,
+                    return_external_data_keys: List[str] = None,
                     source_keys: list = None, timeout=BaseAPI.DEFAULT_TIMEOUT
                     ) -> Union[CustomErrorModel, ByIdModel]:
         """
         Получить заказы по идентификаторам.
 
         :param organization_ids: Organization IDs
-        :param order_ids: list orders id
+        :param order_ids: list
+        :param pos_order_ids: list
+        :param return_external_data_keys: list
         :param source_keys:
         :return:
         """
@@ -996,11 +1000,14 @@ class Orders(BaseAPI):
             "organizationIds": organization_ids,
             "orderIds": order_ids,
         }
-
-        if source_keys is not None:
-            if not isinstance(source_keys, list):
-                raise TypeError("type source_keys != list")
+        if(source_keys is not None):
             data["sourceKeys"] = source_keys
+
+        if(pos_order_ids is not None):
+            data["posOrderIds"] = pos_order_ids
+
+        if(return_external_data_keys is not None):
+            data["returnExternalDataKeys"] = return_external_data_keys
 
         try:
 
