@@ -208,7 +208,7 @@ class BaseAPI:
         if timeout != self.DEFAULT_TIMEOUT:
             self.timeout = timeout
         self.logger.info(f"{url=}, {data=}, {model_response_data=}, {model_error=}")
-        response = self.session_s.post(f'{self.base_url}{url}', json=json.dumps(data),
+        response = self.session_s.post(f'{self.base_url}{url}', data=json.dumps(data),
                                        headers=self.headers)
         if response.status_code == 401:
             self.__get_access_token()
@@ -1670,7 +1670,13 @@ class Customers(BaseAPI):
             raise PostException(self.__class__.__qualname__,
                                 self.customer_create_or_update.__name__,
                                 f"Не удалось: \n{err}")
-    def customer_program_add(self, customer_id, program_id, organization_id,timeout=BaseAPI.DEFAULT_TIMEOUT):
+    def customer_program_add(
+        self,
+        customer_id: str,
+        program_id: str,
+        organization_id: str,
+        timeout=BaseAPI.DEFAULT_TIMEOUT
+    ):
 
         data = {
             "customerId": customer_id,
@@ -1694,7 +1700,14 @@ class Customers(BaseAPI):
                                 self.customer_program_add.__name__,
                                 f"Не удалось: \n{err}")
 
-    def customer_card_add(self, customer_id, card_track, card_number, organization_id,timeout=BaseAPI.DEFAULT_TIMEOUT):
+    def customer_card_add(
+        self,
+        customer_id: str,
+        card_track: str,
+        card_number,
+        organization_id: str,
+        timeout=BaseAPI.DEFAULT_TIMEOUT
+    ):
 
         data = {
             "customerId": customer_id,
@@ -1717,6 +1730,192 @@ class Customers(BaseAPI):
         except TypeError as err:
             raise PostException(self.__class__.__qualname__,
                                 self.customer_card_add.__name__,
+                                f"Не удалось: \n{err}")
+    def customer_card_delete(
+        self,
+        customer_id: str,
+        card_track: str,
+        organization_id: str,
+        timeout=BaseAPI.DEFAULT_TIMEOUT
+    ):
+
+        data = {
+            "customerId": customer_id,
+            "cardTrack": card_track,
+            "organizationId": organization_id,
+        }
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/customer/card/remove",
+                data=data,
+                model_response_data=None,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_card_delete.__name__,
+                                f"Не удалось подключить карту клиенту: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_card_delete.__name__,
+                                f"Не удалось: \n{err}")
+    def customer_wallet_hold(
+        self,
+        customer_id: str,
+        wallet_id: str,
+        sum: Union[int, float],
+        organization_id: str,
+        transaction_id: Optional[str] = None,
+        comment: Optional[str]= None,
+        timeout=BaseAPI.DEFAULT_TIMEOUT
+    ):
+
+        data = {
+            "customerId": customer_id,
+            "walletId": wallet_id,
+            "sum":sum,
+            "organizationId": organization_id,
+        }
+        if transaction_id is not None:
+            data["transactionId"] = transaction_id
+        if comment is not None:
+            data["comment"] = comment
+
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/customer/wallet/hold",
+                data=data,
+                model_response_data=WalletHoldResponse,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_wallet_hold.__name__,
+                                f"Не удалось подключить карту клиенту: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_wallet_hold.__name__,
+                                f"Не удалось: \n{err}")
+    def customer_wallet_cancel_hold(
+        self,
+        organization_id: str,
+        transaction_id: str,
+        timeout=BaseAPI.DEFAULT_TIMEOUT
+    ):
+
+        data = {
+            "organizationId": organization_id,
+            "transactionId": transaction_id,
+        }
+
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/customer/wallet/cancel_hold",
+                data=data,
+                model_response_data=None,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_wallet_cancel_hold.__name__,
+                                f"Не удалось подключить карту клиенту: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_wallet_cancel_hold.__name__,
+                                f"Не удалось: \n{err}")
+    def customer_wallet_topup(
+        self,
+        customer_id: str,
+        wallet_id: str,
+        sum: Union[int, float],
+        organization_id: str,
+        comment: Optional[str]=None,
+        timeout=BaseAPI.DEFAULT_TIMEOUT
+    ):
+        """
+        Refill balance.
+        Refill customer balance.
+        :param customer_id: Customer id.
+        :param wallet_id: Wallet id.
+        :param sum: Sum of balance change. Must be possible.
+        :param organization_id: Organization id.
+        :param comment: Comment. Can be null.
+        :param timeout:
+        :return: dict response
+        """
+
+        data = {
+            "customerId":customer_id,
+            "walletId": wallet_id,
+            "sum": sum,
+            "organizationId": organization_id,
+        }
+        if comment is not None:
+            data["comment"] = comment
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/customer/wallet/topup",
+                data=data,
+                model_response_data=None,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_wallet_topup.__name__,
+                                f"Не удалось подключить карту клиенту: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_wallet_topup.__name__,
+                                f"Не удалось: \n{err}")
+
+    def customer_wallet_chargeoff(
+        self,
+        customer_id: str,
+        wallet_id: str,
+        sum: Union[int, float],
+        organization_id: str,
+        comment: Optional[str]=None,
+        timeout=BaseAPI.DEFAULT_TIMEOUT
+    ):
+        """
+        Withdraw balance.
+        Withdraw customer balance.
+        :param customer_id: Customer id.
+        :param wallet_id: Wallet id.
+        :param sum: Sum of balance change. Must be possible.
+        :param organization_id: Organization id.
+        :param comment: Comment. Can be null.
+        :param timeout:
+        :return: dict response
+        """
+
+        data = {
+            "customerId":customer_id,
+            "walletId": wallet_id,
+            "sum": sum,
+            "organizationId": organization_id,
+        }
+        if comment is not None:
+            data["comment"] = comment
+        try:
+            return self._post_request(
+                url="/api/1/loyalty/iiko/customer/wallet/chargeoff",
+                data=data,
+                model_response_data=None,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_wallet_chargeoff.__name__,
+                                f"Не удалось подключить карту клиенту: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.customer_wallet_chargeoff.__name__,
                                 f"Не удалось: \n{err}")
 
 

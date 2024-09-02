@@ -1,7 +1,8 @@
 from decimal import Decimal
 from enum import Enum
-from pydantic import BaseModel, Field
 from typing import Optional, List, Union, Any
+
+from pydantic import BaseModel, Field
 
 
 class IdNameModel(BaseModel):
@@ -60,6 +61,7 @@ class OrganizationModel(IdNameModel):
     def __str__(self):
         return self.name
 
+
 class OrganizationExtendedModel(IdNameModel):
     class ResponseTypeEnum(str, Enum):
         simple = "Simple"
@@ -96,10 +98,8 @@ class OrganizationExtendedModel(IdNameModel):
         return self.name
 
 
-
 class BaseOrganizationsModel(BaseResponseModel):
     organizations: List[OrganizationModel]
-
 
     def __list_id__(self):
         return [org.id for org in self.organizations]
@@ -361,8 +361,6 @@ class ByOrderItemModel(BaseModel):
     order: Optional[CreatedDeliveryOrderModel]
 
     def get_by_courier_id(self, courier_id: str):
-        # return next(i for i in self.orders if i.order.courier_info is not None and str(i.order.courier_info.courier.id) == courier_id)
-
         return self if self.order.courier_info is not None and self.order.courier_info.courier.id == courier_id else None
 
 
@@ -601,10 +599,12 @@ class CreateOrderDetailModel(CreatedDeliveryOrderModel):
     waiter: Optional[OrderDetailWaiterModel]
     tab_name: Optional[str] = Field(alias="tabName")
 
+
 class COICreationStatusModel(str, Enum):
     success = "Success"
     in_progress = "InProgress"
     error = "Error"
+
 
 class CreatedOrderInfoModel(BaseModel):
     id: str
@@ -935,6 +935,7 @@ class DiscountModel(BaseModel):
 class BaseDiscountsModel(BaseResponseModel):
     discounts: List[DiscountModel]
 
+
 class CouponInfo(BaseModel):
     id: str
     number: Optional[str]
@@ -943,8 +944,10 @@ class CouponInfo(BaseModel):
     whenActivated: Optional[str]
     isDeleted: Optional[str]
 
+
 class SeriesWithNotActivatedCoupon(BaseModel):
     coupons: List[CouponInfo] = Field(alias="seriesWithNotActivatedCoupons")
+
 
 class BaseCouponInfo(BaseModel):
     coupons: List[CouponInfo] = Field(alias="couponInfo")
@@ -996,8 +999,11 @@ class TipTypeModel(IdNameModel):
 class BaseTipsTypesModel(BaseResponseModel):
     tips_types: List[TipTypeModel] = Field(alias="tipsTypes")
 
+
 class BaseStatusExceptModel(BaseModel):
     message: Optional[str]
+
+
 class BaseStatusModel(BaseModel):
     state: COICreationStatusModel
     exception: Optional[BaseStatusExceptModel]
@@ -1051,6 +1057,7 @@ class EIEmployeeModel(BaseModel):
 class BaseEInfoModel(BaseResponseModel):
     employee_info: EIEmployeeModel = Field(alias="employeeInfo")
 
+
 class TypeRCI(Enum):
     phone = 'phone'
     card_track = 'cardTrack'
@@ -1058,17 +1065,23 @@ class TypeRCI(Enum):
     email = 'email'
     id = 'id'
 
+
 class CardCIModel(BaseModel):
     id: str
     track: str
     number: str
     valid_to_date: Optional[str] = Field(alias='validToDate')
+
+
 class CategoriesCIModel(IdNameModel):
     is_active: bool = Field(alias="isActive")
     is_default_for_new_guests: bool = Field(alias="isDefaultForNewGuests")
+
+
 class WalletBalanceCIModel(IdNameModel):
     type: int
     balance: float
+
 
 class CustomerInfoModel(BaseModel):
     id: str
@@ -1097,28 +1110,44 @@ class CustomerInfoModel(BaseModel):
     personalDataProcessingTo: Optional[str] = Field(alias="personalDataProcessingTo")
     isDeleted: Optional[bool] = Field(alias="isDeleted")
 
+
 class CustomerCreateOrUpdateModel(BaseModel):
     id: str
+
+
 class CustomerProgramAddResponse(BaseModel):
     user_wallet_id: str = Field(alias="userWalletId")
+
+
 class ItemsTerminalGroupStopListResponse(BaseModel):
     balance: Decimal
     product_id: str = Field(alias="productId")
     size_id: Optional[str] = Field(alias="sizeId")
+
+
 class ItemsTerminalGroupStopListsResponse(BaseModel):
     terminal_group_id: Optional[str] = Field(alias="terminalGroupId")
     items: Optional[List[ItemsTerminalGroupStopListResponse]]
+
+
 class TerminalGroupStopListsResponse(BaseModel):
     organization_id: str = Field(alias='organizationId')
     items: Optional[List[ItemsTerminalGroupStopListsResponse]]
 
+
 class StopListsResponse(BaseResponseModel):
     terminal_group_stop_lists: str = Field(alias="terminalGroupStopLists")
+
 
 class RejectedItemsCSLResponse(BaseModel):
     balance: Decimal
     product_id: str = Field(alias="productId")
     size_id: Optional[str] = Field(alias="sizeId")
 
+
 class CheckStopListsResponse(BaseResponseModel):
     rejected_items: Optional[List[RejectedItemsCSLResponse]] = Field(alias="rejectedItems")
+
+
+class WalletHoldResponse(BaseModel):
+    transaction_id: str = Field(alias="transactionId")
