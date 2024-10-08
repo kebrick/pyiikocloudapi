@@ -16,6 +16,11 @@ pip install pyiikocloudapi
     requests
     pydantic
 
+Начиная с версии _0.0.20_
+
+    requests
+    pydantic>=2.9.2
+    
 Как использовать
 ============
 Все названия методов соответствуют названию в ссылке (смотрите документацию iiko Transport).
