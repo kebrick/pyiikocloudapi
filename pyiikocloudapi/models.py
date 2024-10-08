@@ -14,16 +14,16 @@ class IdNameModel(BaseModel):
 
 
 class BaseResponseModel(BaseModel):
-    correlation_id: Optional[str] = Field(alias='correlationId')
+    correlation_id: Optional[str] = Field(None, alias='correlationId')
 
 
 class ErrorModel(BaseResponseModel):
-    error_description: Optional[str] = Field(alias='errorDescription')
-    error: Optional[str]
+    error_description: Optional[str] = Field(None, alias='errorDescription')
+    error: Optional[str] = None
 
 
 class CustomErrorModel(ErrorModel):
-    status_code: Optional[str]
+    status_code: Optional[str] = None
 
 
 class OrganizationModel(IdNameModel):
@@ -37,25 +37,25 @@ class OrganizationModel(IdNameModel):
         international = "International"
         int_no_postcode = "IntNoPostcode"
 
-    country: Optional[str]
-    restaurant_address: Optional[str] = Field(alias="restaurantAddress")
-    latitude: Optional[Decimal]
-    longitude: Optional[Decimal]
-    use_uae_addressing_system: Optional[bool] = Field(alias="useUaeAddressingSystem")
-    version: Optional[str]
-    currency_iso_name: Optional[str] = Field(alias="currencyIsoName")
-    currency_minimum_denomination: Optional[Decimal] = Field(alias="currencyMinimumDenomination")
-    country_phone_code: Optional[str] = Field(alias="countryPhoneCode")
-    marketing_source_required_in_delivery: Optional[bool] = Field(alias="marketingSourceRequiredInDelivery")
-    default_delivery_city_id: Optional[str] = Field(alias="defaultDeliveryCityId")
-    delivery_city_ids: Optional[List[str]] = Field(alias="deliveryCityIds")
-    delivery_service_type: Optional[str] = Field(alias="deliveryServiceType")
-    default_call_center_payment_type_id: Optional[str] = Field(alias="defaultCallCenterPaymentTypeId")
-    order_item_comment_enabled: Optional[bool] = Field(alias="orderItemCommentEnabled")
-    inn: Optional[str]
-    addressFormatType: Optional[OAddressFormatTypeEnum] = Field(alias="addressFormatType")
-    is_confirmation_enabled: Optional[bool] = Field(alias="isConfirmationEnabled")
-    confirm_allowed_interval_in_minutes: Optional[int] = Field(alias="confirmAllowedIntervalInMinutes")
+    country: Optional[str] = None
+    restaurant_address: Optional[str] = Field(None, alias="restaurantAddress")
+    latitude: Optional[Decimal] = None
+    longitude: Optional[Decimal] = None
+    use_uae_addressing_system: Optional[bool] = Field(None, alias="useUaeAddressingSystem")
+    version: Optional[str] = None
+    currency_iso_name: Optional[str] = Field(None, alias="currencyIsoName")
+    currency_minimum_denomination: Optional[Decimal] = Field(None, alias="currencyMinimumDenomination")
+    country_phone_code: Optional[str] = Field(None, alias="countryPhoneCode")
+    marketing_source_required_in_delivery: Optional[bool] = Field(None, alias="marketingSourceRequiredInDelivery")
+    default_delivery_city_id: Optional[str] = Field(None, alias="defaultDeliveryCityId")
+    delivery_city_ids: Optional[List[str]] = Field(None, alias="deliveryCityIds")
+    delivery_service_type: Optional[str] = Field(None, alias="deliveryServiceType")
+    default_call_center_payment_type_id: Optional[str] = Field(None, alias="defaultCallCenterPaymentTypeId")
+    order_item_comment_enabled: Optional[bool] = Field(None, alias="orderItemCommentEnabled")
+    inn: Optional[str] = None
+    addressFormatType: Optional[OAddressFormatTypeEnum] = Field(None, alias="addressFormatType")
+    is_confirmation_enabled: Optional[bool] = Field(None, alias="isConfirmationEnabled")
+    confirm_allowed_interval_in_minutes: Optional[int] = Field(None, alias="confirmAllowedIntervalInMinutes")
     response_type: ResponseTypeEnum = Field(alias="responseType")
 
     def __str__(self):
@@ -73,25 +73,25 @@ class OrganizationExtendedModel(IdNameModel):
         international = "International"
         int_no_postcode = "IntNoPostcode"
 
-    country: Optional[str]
-    restaurant_address: Optional[str] = Field(alias="restaurantAddress")
-    latitude: Optional[Decimal]
-    longitude: Optional[Decimal]
-    use_uae_addressing_system: Optional[bool] = Field(alias="useUaeAddressingSystem")
-    version: Optional[str]
-    currency_iso_name: Optional[str] = Field(alias="currencyIsoName")
-    currency_minimum_denomination: Optional[Decimal] = Field(alias="currencyMinimumDenomination")
-    country_phone_code: Optional[str] = Field(alias="countryPhoneCode")
-    marketing_source_required_in_delivery: Optional[bool] = Field(alias="marketingSourceRequiredInDelivery")
-    default_delivery_city_id: Optional[str] = Field(alias="defaultDeliveryCityId")
-    delivery_city_ids: Optional[List[str]] = Field(alias="deliveryCityIds")
-    delivery_service_type: Optional[str] = Field(alias="deliveryServiceType")
-    default_call_center_payment_type_id: Optional[str] = Field(alias="defaultCallCenterPaymentTypeId")
-    order_item_comment_enabled: Optional[bool] = Field(alias="orderItemCommentEnabled")
-    inn: Optional[str]
-    addressFormatType: Optional[OAddressFormatTypeEnum] = Field(alias="addressFormatType")
-    is_confirmation_enabled: Optional[bool] = Field(alias="isConfirmationEnabled")
-    confirm_allowed_interval_in_minutes: Optional[int] = Field(alias="confirmAllowedIntervalInMinutes")
+    country: Optional[str] = None
+    restaurant_address: Optional[str] = Field(None, alias="restaurantAddress")
+    latitude: Optional[Decimal] = None
+    longitude: Optional[Decimal] = None
+    use_uae_addressing_system: Optional[bool] = Field(None, alias="useUaeAddressingSystem")
+    version: Optional[str] = None
+    currency_iso_name: Optional[str] = Field(None, alias="currencyIsoName")
+    currency_minimum_denomination: Optional[Decimal] = Field(None, alias="currencyMinimumDenomination")
+    country_phone_code: Optional[str] = Field(None, alias="countryPhoneCode")
+    marketing_source_required_in_delivery: Optional[bool] = Field(None, alias="marketingSourceRequiredInDelivery")
+    default_delivery_city_id: Optional[str] = Field(None, alias="defaultDeliveryCityId")
+    delivery_city_ids: Optional[List[str]] = Field(None, alias="deliveryCityIds")
+    delivery_service_type: Optional[str] = Field(None, alias="deliveryServiceType")
+    default_call_center_payment_type_id: Optional[str] = Field(None, alias="defaultCallCenterPaymentTypeId")
+    order_item_comment_enabled: Optional[bool] = Field(None, alias="orderItemCommentEnabled")
+    inn: Optional[str] = None
+    addressFormatType: Optional[OAddressFormatTypeEnum] = Field(None, alias="addressFormatType")
+    is_confirmation_enabled: Optional[bool] = Field(None, alias="isConfirmationEnabled")
+    confirm_allowed_interval_in_minutes: Optional[int] = Field(None, alias="confirmAllowedIntervalInMinutes")
     response_type: ResponseTypeEnum = Field(alias="responseType")
 
     def __str__(self):
@@ -107,9 +107,9 @@ class BaseOrganizationsModel(BaseResponseModel):
 
 class EmployeeItemModel(BaseModel):
     id: str
-    first_name: Optional[str] = Field(alias='firstName')
-    middle_name: Optional[str] = Field(alias='middleName')
-    last_name: Optional[str] = Field(alias='lastName')
+    first_name: Optional[str] = Field(None, alias='firstName')
+    middle_name: Optional[str] = Field(None, alias='middleName')
+    last_name: Optional[str] = Field(None, alias='lastName')
     display_name: str = Field(alias='displayName')
     code: str
     is_deleted: bool = Field(alias='isDeleted')
@@ -117,7 +117,7 @@ class EmployeeItemModel(BaseModel):
 
 class EmployeesModel(BaseModel):
     organization_id: str = Field(alias='organizationId')
-    items: Optional[List[EmployeeItemModel]]
+    items: Optional[List[EmployeeItemModel]] = None
 
 
 class CouriersModel(BaseResponseModel):
@@ -133,12 +133,12 @@ class CouriersModel(BaseResponseModel):
 class CustomerModel(BaseModel):
     id: str
     name: str
-    surname: Optional[str]
-    comment: Optional[str]
+    surname: Optional[str] = None
+    comment: Optional[str] = None
     gender: str
     inBlacklist: bool
-    blacklistReason: Optional[str]
-    birthdate: Optional[str]
+    blacklistReason: Optional[str] = None
+    birthdate: Optional[str] = None
 
 
 class CauseModel(BaseModel):
@@ -149,13 +149,13 @@ class CauseModel(BaseModel):
 class CancelInfoModel(BaseModel):
     whenCancelled: str
     cause: CauseModel
-    comment: Optional[str]
+    comment: Optional[str] = None
 
 
 class EmployeeModel(BaseModel):
     id: str
     name: str
-    phone: Optional[str]
+    phone: Optional[str] = None
 
 
 class CourierInfoModel(BaseModel):
@@ -165,7 +165,7 @@ class CourierInfoModel(BaseModel):
 
 class ProblemOrderModel(BaseModel):
     has_problem: bool = Field(alias="hasProblem")
-    description: Optional[str]
+    description: Optional[str] = None
 
 
 class MarketingSourceOrderModel(BaseModel):
@@ -209,7 +209,7 @@ class PaymentItemOrderModel(BaseModel):
     is_preliminary: bool = Field(alias="isPreliminary")
     is_external: bool = Field(alias="isExternal")
     is_processed_externally: bool = Field(alias="isProcessedExternally")
-    is_fiscalized_externally: Optional[bool] = Field(alias="isFiscalizedExternally")
+    is_fiscalized_externally: Optional[bool] = Field(None, alias="isFiscalizedExternally")
 
 
 class TipsTypeModel(BaseModel):
@@ -224,7 +224,7 @@ class TipsItemOrderModel(BaseModel):
     is_preliminary: bool = Field(alias="isPreliminary")
     is_external: bool = Field(alias="isExternal")
     is_processed_externally: bool = Field(alias="isProcessedExternally")
-    is_fiscalized_externally: Optional[bool] = Field(alias="isFiscalizedExternally")
+    is_fiscalized_externally: Optional[bool] = Field(None, alias="isFiscalizedExternally")
 
 
 class DiscountTypeModel(BaseModel):
@@ -241,12 +241,12 @@ class OrderItemComboInformationModel(BaseModel):
 class DiscountsItemOrderModel(BaseModel):
     discount_type: DiscountTypeModel = Field(alias="discountType")
     sum: float
-    selective_positions: Optional[List[str]] = Field(alias="selectivePositions")
+    selective_positions: Optional[List[str]] = Field(None, alias="selectivePositions")
 
 
 class OrderItemDeletionMethodModel(BaseModel):
     id: str
-    comment: Optional[str]
+    comment: Optional[str] = None
     removal_type: IdNameModel
 
 
@@ -267,77 +267,77 @@ class MOrderProductItemModel(BaseModel):
     product_group: IdNameModel = Field(alias="productGroup")
     price: float
     price_predefined: bool = Field(alias="pricePredefined")
-    result_sum: Optional[float]
-    deleted: Optional[OrderItemDeletedModel]
-    position_id: Optional[str] = Field(alias="positionId")
-    default_amount: Optional[int] = Field(alias="defaultAmount")
-    hide_if_default_amount: Optional[bool] = Field(alias="hideIfDefaultAmount")
-    tax_percent: Optional[float] = Field(alias="taxPercent")
+    result_sum: Optional[float] = None
+    deleted: Optional[OrderItemDeletedModel] = None
+    position_id: Optional[str] = Field(None, alias="positionId")
+    default_amount: Optional[int] = Field(None, alias="defaultAmount")
+    hide_if_default_amount: Optional[bool] = Field(None, alias="hideIfDefaultAmount")
+    tax_percent: Optional[float] = Field(None, alias="taxPercent")
 
 
 class OrderProductItemModel(BaseModel):
     product: IdNameModel = Field(alias="product")
-    modifiers: Optional[List[MOrderProductItemModel]]
-    price: Optional[float]
+    modifiers: Optional[List[MOrderProductItemModel]] = None
+    price: Optional[float] = None
     cost: float
     price_predefined: bool = Field(alias="pricePredefined")
-    position_id: Optional[str] = Field(alias="positionId")
-    tax_percent: Optional[float] = Field(alias="taxPercent")
+    position_id: Optional[str] = Field(None, alias="positionId")
+    tax_percent: Optional[float] = Field(None, alias="taxPercent")
     type: str
     status: str
-    deleted: Optional[OrderItemDeletedModel]
+    deleted: Optional[OrderItemDeletedModel] = None
     amount: float
-    comment: Optional[str]
-    when_printed: Optional[str] = Field(alias="whenPrinted")
-    size: Optional[IdNameModel]
-    combo_information: Optional[OrderItemComboInformationModel] = Field(alias="comboInformation")
+    comment: Optional[str] = None
+    when_printed: Optional[str] = Field(None, alias="whenPrinted")
+    size: Optional[IdNameModel] = None
+    combo_information: Optional[OrderItemComboInformationModel] = Field(None, alias="comboInformation")
 
 
 class CreatedDeliveryOrderModel(BaseModel):
-    parent_delivery_id: Optional[str] = Field(alias="parentDeliveryId")
+    parent_delivery_id: Optional[str] = Field(None, alias="parentDeliveryId")
     customer: CustomerModel
     phone: str
     # TODO(Kebrick): дописать модель DeliveryPointModel для ключа delivery_point
-    delivery_point: Optional[dict] = Field(alias="deliveryPoint")
+    delivery_point: Optional[dict] = Field(None, alias="deliveryPoint")
     status: str
-    cancel_info: Optional[CancelInfoModel] = Field(alias="cancelInfo")
-    courier_info: Optional[CourierInfoModel] = Field(alias="courierInfo")
+    cancel_info: Optional[CancelInfoModel] = Field(None, alias="cancelInfo")
+    courier_info: Optional[CourierInfoModel] = Field(None, alias="courierInfo")
     complete_before: str = Field(alias="completeBefore")
     when_created: str = Field(alias="whenCreated")
-    when_confirmed: Optional[str] = Field(alias="whenConfirmed")
-    when_printed: Optional[str] = Field(alias="whenPrinted")
-    when_sended: Optional[str] = Field(alias="whenSended")
-    when_delivered: Optional[str] = Field(alias="whenDelivered")
-    comment: Optional[str]
-    problem: Optional[ProblemOrderModel]
-    operator: Optional[EmployeeModel]
-    marketing_source: Optional[MarketingSourceOrderModel] = Field(alias="marketingSource")
-    delivery_duration: Optional[int] = Field(alias="deliveryDuration")
-    index_in_courier_route: Optional[int] = Field(alias="indexInCourierRoute")
+    when_confirmed: Optional[str] = Field(None, alias="whenConfirmed")
+    when_printed: Optional[str] = Field(None, alias="whenPrinted")
+    when_sended: Optional[str] = Field(None, alias="whenSended")
+    when_delivered: Optional[str] = Field(None, alias="whenDelivered")
+    comment: Optional[str] = None
+    problem: Optional[ProblemOrderModel] = None
+    operator: Optional[EmployeeModel] = None
+    marketing_source: Optional[MarketingSourceOrderModel] = Field(None, alias="marketingSource")
+    delivery_duration: Optional[int] = Field(None, alias="deliveryDuration")
+    index_in_courier_route: Optional[int] = Field(None, alias="indexInCourierRoute")
     cooking_start_time: str = Field(alias="cookingStartTime")
     is_deleted: bool = Field(alias="isDeleted")
-    when_received_by_api: Optional[str] = Field(alias="whenReceivedByApi")
-    when_received_from_front: Optional[str] = Field(alias="whenReceivedFromFront")
-    moved_from_delivery_id: Optional[str] = Field(alias="movedFromDeliveryId")
-    moved_from_terminal_group_id: Optional[str] = Field(alias="movedFromTerminalGroupId")
-    moved_from_organization_id: Optional[str] = Field(alias="movedFromOrganizationId")
-    external_courier_service: Optional[ExternalCourierServiceOrderModel] = Field(alias="externalCourierService")
+    when_received_by_api: Optional[str] = Field(None, alias="whenReceivedByApi")
+    when_received_from_front: Optional[str] = Field(None, alias="whenReceivedFromFront")
+    moved_from_delivery_id: Optional[str] = Field(None, alias="movedFromDeliveryId")
+    moved_from_terminal_group_id: Optional[str] = Field(None, alias="movedFromTerminalGroupId")
+    moved_from_organization_id: Optional[str] = Field(None, alias="movedFromOrganizationId")
+    external_courier_service: Optional[ExternalCourierServiceOrderModel] = Field(None, alias="externalCourierService")
     sum: float
     number: int
-    source_key: Optional[str] = Field(alias="sourceKey")
-    when_bill_printed: Optional[str] = Field(alias="whenBillPrinted")
-    when_closed: Optional[str] = Field(alias="whenClosed")
-    conception: Optional[ConceptionOrderModel]
+    source_key: Optional[str] = Field(None, alias="sourceKey")
+    when_bill_printed: Optional[str] = Field(None, alias="whenBillPrinted")
+    when_closed: Optional[str] = Field(None, alias="whenClosed")
+    conception: Optional[ConceptionOrderModel] = None
     guests_info: GuestsInfoOrderModel = Field(alias="guestsInfo")
     # TODO(Kebrick): дописать модель ItemsOrderModel для ключа items
     items: List[OrderProductItemModel]
-    combos: Optional[List[CombosItemOrderModel]]
-    payments: Optional[List[PaymentItemOrderModel]]
-    tips: Optional[List[TipsItemOrderModel]]
-    discounts: Optional[List[DiscountsItemOrderModel]]
-    order_type: Optional[CDOrderTypeModel] = Field(alias="orderType")
+    combos: Optional[List[CombosItemOrderModel]] = None
+    payments: Optional[List[PaymentItemOrderModel]] = None
+    tips: Optional[List[TipsItemOrderModel]] = None
+    discounts: Optional[List[DiscountsItemOrderModel]] = None
+    order_type: Optional[CDOrderTypeModel] = Field(None, alias="orderType")
     terminal_group_id: str = Field(alias="terminalGroupId")
-    processed_payments_sum: Optional[int] = Field(alias="processedPaymentsSum")
+    processed_payments_sum: Optional[int] = Field(None, alias="processedPaymentsSum")
 
 
 class ErrorInfoModel(BaseModel):
@@ -346,31 +346,31 @@ class ErrorInfoModel(BaseModel):
     # "description": "string",
     # "additionalData": null
     code: str
-    message: Optional[str]
-    description: Optional[str]
-    additional_data: Optional[Union[str, list]] = Field(alias="additionalData")
+    message: Optional[str] = None
+    description: Optional[str] = None
+    additional_data: Optional[Union[str, list]] = Field(None, alias="additionalData")
 
 
 class ByOrderItemModel(BaseModel):
     id: str
-    external_number: Optional[str] = Field(alias='externalNumber')
+    external_number: Optional[str] = Field(None, alias='externalNumber')
     organization_id: str = Field(alias='organizationId')
     timestamp: int
-    creation_status: Optional[str] = Field(alias='creationStatus')
-    error_info: Optional[ErrorInfoModel] = Field(alias='errorInfo')
-    order: Optional[CreatedDeliveryOrderModel]
+    creation_status: Optional[str] = Field(None, alias='creationStatus')
+    error_info: Optional[ErrorInfoModel] = Field(None, alias='errorInfo')
+    order: Optional[CreatedDeliveryOrderModel] = None
 
     def get_by_courier_id(self, courier_id: str):
         return self if self.order.courier_info is not None and self.order.courier_info.courier.id == courier_id else None
 
 
 class ByIdModel(BaseResponseModel):
-    orders: Optional[List[ByOrderItemModel]]
+    orders: Optional[List[ByOrderItemModel]] = None
 
 
 class OrdersByOrganizationsModel(BaseModel):
     organization_id: str = Field(alias='organizationId')
-    orders: Optional[List[ByOrderItemModel]]
+    orders: Optional[List[ByOrderItemModel]] = None
 
     def get_by_courier_name(self, courier_name: str):
         return next(i for i in self.orders if
@@ -389,7 +389,7 @@ class OrdersByOrganizationsModel(BaseModel):
 
 class ByDeliveryDateAndStatusModel(BaseResponseModel):
     max_revision: int = Field(alias="maxRevision")
-    orders_by_organizations: Optional[List[OrdersByOrganizationsModel]] = Field(alias="ordersByOrganizations")
+    orders_by_organizations: Optional[List[OrdersByOrganizationsModel]] = Field(None, alias="ordersByOrganizations")
 
 
 class ByDeliveryDateAndSourceKeyAndFilter(ByDeliveryDateAndStatusModel):
@@ -399,42 +399,42 @@ class ByDeliveryDateAndSourceKeyAndFilter(ByDeliveryDateAndStatusModel):
 class RegionsItemModel(BaseModel):
     id: str
     name: str
-    external_revision: Optional[int] = Field(alias="externalRevision")
+    external_revision: Optional[int] = Field(None, alias="externalRevision")
     is_deleted: bool = Field(alias='isDeleted')
 
 
 class RegionsModel(BaseModel):
     organization_id: str = Field(alias='organizationId')
-    items: Optional[List[RegionsItemModel]]
+    items: Optional[List[RegionsItemModel]] = None
 
 
 class BaseRegionsModel(BaseResponseModel):
-    regions: Optional[List[RegionsModel]]
+    regions: Optional[List[RegionsModel]] = None
 
 
 class CitiesItemModel(BaseModel):
     id: str
     name: str
-    external_revision: Optional[int] = Field(alias="externalRevision")
+    external_revision: Optional[int] = Field(None, alias="externalRevision")
     is_deleted: bool = Field(alias='isDeleted')
-    classifier_id: Optional[str] = Field(alias="classifierId")
-    additional_info: Optional[str] = Field(alias="additionalInfo")
+    classifier_id: Optional[str] = Field(None, alias="classifierId")
+    additional_info: Optional[str] = Field(None, alias="additionalInfo")
 
 
 class CitiesModel(BaseModel):
     organization_id: str = Field(alias='organizationId')
-    items: Optional[List[CitiesItemModel]]
+    items: Optional[List[CitiesItemModel]] = None
 
 
 class BaseCitiesModel(BaseResponseModel):
-    cities: Optional[List[CitiesModel]]
+    cities: Optional[List[CitiesModel]] = None
 
 
 class StreetsItemModel(BaseModel):
     id: str
     name: str
-    external_revision: Optional[int] = Field(alias="externalRevision")
-    classifier_id: Optional[str] = Field(alias="classifierId")
+    external_revision: Optional[int] = Field(None, alias="externalRevision")
+    classifier_id: Optional[str] = Field(None, alias="classifierId")
     is_deleted: bool = Field(alias='isDeleted')
 
 
@@ -444,23 +444,23 @@ class StreetsItemModel(BaseModel):
 
 
 class BaseStreetByCityModel(BaseResponseModel):
-    streets: Optional[List[StreetsItemModel]]
+    streets: Optional[List[StreetsItemModel]] = None
 
 
 class TerminalGroupItemModel(BaseModel):
     id: str
     name: str
     organization_id: str = Field(alias="organizationId")
-    address: Optional[str]
+    address: Optional[str] = None
 
 
 class TerminalGroupsModel(BaseModel):
     organization_id: str = Field(alias='organizationId')
-    items: Optional[List[TerminalGroupItemModel]]
+    items: Optional[List[TerminalGroupItemModel]] = None
 
 
 class BaseTerminalGroupsModel(BaseResponseModel):
-    terminal_groups: Optional[List[TerminalGroupsModel]] = Field(alias="terminalGroups")
+    terminal_groups: Optional[List[TerminalGroupsModel]] = Field(None, alias="terminalGroups")
 
 
 class TGIsAliveItemModel(BaseModel):
@@ -470,7 +470,7 @@ class TGIsAliveItemModel(BaseModel):
 
 
 class BaseTGIsAliveyModel(BaseResponseModel):
-    is_alive_status: Optional[List[TGIsAliveItemModel]] = Field(alias="isAliveStatus")
+    is_alive_status: Optional[List[TGIsAliveItemModel]] = Field(None, alias="isAliveStatus")
 
 
 # class COrderCustomerModel(BaseModel):
@@ -573,31 +573,31 @@ class BaseTGIsAliveyModel(BaseResponseModel):
 
 
 class OrderDetailWaiterModel(IdNameModel):
-    phone: Optional[str]
+    phone: Optional[str] = None
 
 
 class OrderItemCreatedModel(BaseModel):
     product: IdNameModel
-    modifiers: Optional[List[dict]]
+    modifiers: Optional[List[dict]] = None
     price: float
     cost: float
     price_predefined: bool = Field(alias="pricePredefined")
-    position_id: Optional[str] = Field(alias="positionId")
-    tax_percent: Optional[float] = Field(alias="taxPercent")
+    position_id: Optional[str] = Field(None, alias="positionId")
+    tax_percent: Optional[float] = Field(None, alias="taxPercent")
     type: str
     status: str
-    deleted: Optional[OrderItemDeletedModel]
+    deleted: Optional[OrderItemDeletedModel] = None
     amount: float
-    comment: Optional[str]
-    when_printed: Optional[str]
-    size: Optional[IdNameModel]
-    combo_information: Optional[OrderItemComboInformationModel] = Field(alias="comboInformation")
+    comment: Optional[str] = None
+    when_printed: Optional[str] = None
+    size: Optional[IdNameModel] = None
+    combo_information: Optional[OrderItemComboInformationModel] = Field(None, alias="comboInformation")
 
 
 class CreateOrderDetailModel(CreatedDeliveryOrderModel):
-    table_ids: Optional[List[str]]
-    waiter: Optional[OrderDetailWaiterModel]
-    tab_name: Optional[str] = Field(alias="tabName")
+    table_ids: Optional[List[str]] = None
+    waiter: Optional[OrderDetailWaiterModel] = None
+    tab_name: Optional[str] = Field(None, alias="tabName")
 
 
 class COICreationStatusModel(str, Enum):
@@ -608,16 +608,16 @@ class COICreationStatusModel(str, Enum):
 
 class CreatedOrderInfoModel(BaseModel):
     id: str
-    external_number: Optional[str] = Field(alias='externalNumber')
+    external_number: Optional[str] = Field(None, alias='externalNumber')
     organization_id: str = Field(alias='organizationId')
     timestamp: int
-    creation_status: Optional[COICreationStatusModel] = Field(alias='creationStatus')
-    error_info: Optional[ErrorInfoModel] = Field(alias="errorInfo")
+    creation_status: Optional[COICreationStatusModel] = Field(None, alias='creationStatus')
+    error_info: Optional[ErrorInfoModel] = Field(None, alias="errorInfo")
     order: CreateOrderDetailModel
 
 
 class CreateDeliveryOrderInfoModel(CreatedOrderInfoModel):
-    order: Optional[CreatedDeliveryOrderModel]
+    order: Optional[CreatedDeliveryOrderModel] = None
 
 
 class BaseCreatedOrderInfoModel(BaseResponseModel):
@@ -648,21 +648,21 @@ class NomenclatureGroupModel(BaseModel):
     seoTitle - SEO header.
     """
     image_links: List[str] = Field(alias="imageLinks")
-    parent_group: Optional[str] = Field(alias="parentGroup")
+    parent_group: Optional[str] = Field(None, alias="parentGroup")
     order: int
     is_included_in_menu: bool = Field(alias="isIncludedInMenu")
     is_group_modifier: bool = Field(alias="isGroupModifier")
     id: str
-    code: Optional[str]
+    code: Optional[str] = None
     name: str
-    description: Optional[str]
-    additional_info: Optional[str] = Field(alias="additionalInfo")
-    tags: Optional[List[str]]
-    is_deleted: Optional[bool] = Field(alias="isDeleted")
-    seo_description: Optional[str] = Field(alias="seoDescription")
-    seo_text: Optional[str] = Field(alias="seoText")
-    seo_keywords: Optional[str] = Field(alias="seoKeywords")
-    set_title: Optional[str] = Field(alias="seoTitle")
+    description: Optional[str] = None
+    additional_info: Optional[str] = Field(None, alias="additionalInfo")
+    tags: Optional[List[str]] = None
+    is_deleted: Optional[bool] = Field(None, alias="isDeleted")
+    seo_description: Optional[str] = Field(None, alias="seoDescription")
+    seo_text: Optional[str] = Field(None, alias="seoText")
+    seo_keywords: Optional[str] = Field(None, alias="seoKeywords")
+    set_title: Optional[str] = Field(None, alias="seoTitle")
 
     def __str__(self):
         return self.name
@@ -680,8 +680,8 @@ class NProductCategoriesModel(BaseModel):
 class NSizeModel(BaseModel):
     id: str
     name: str
-    priority: Optional[int]
-    is_default: Optional[bool] = Field(alias="isDefault")
+    priority: Optional[int] = None
+    is_default: Optional[bool] = Field(None, alias="isDefault")
 
     def __str__(self):
         return self.name
@@ -690,28 +690,28 @@ class NSizeModel(BaseModel):
 class NPSPPriceModel(BaseModel):
     current_price: float = Field(alias="currentPrice")
     is_included_in_menu: bool = Field(alias="isIncludedInMenu")
-    next_price: Optional[float] = Field(alias="nextPrice")
+    next_price: Optional[float] = Field(None, alias="nextPrice")
     next_included_in_menu: bool = Field(alias="nextIncludedInMenu")
-    next_date_price: Optional[str] = Field(alias="nextDatePrice")
+    next_date_price: Optional[str] = Field(None, alias="nextDatePrice")
 
     def __str__(self):
         return self.current_price
 
 
 class NPSizePriceModel(BaseModel):
-    size_id: Optional[str]
+    size_id: Optional[str] = None
     price: NPSPPriceModel
 
 
 class NPModifierModel(BaseModel):
     id: str
-    default_amount: Optional[int] = Field(alias="defaultAmount")
+    default_amount: Optional[int] = Field(None, alias="defaultAmount")
     min_amount: int = Field(alias="minAmount")
     max_amount: int = Field(alias="maxAmount")
-    required: Optional[bool]
-    hide_if_default_amount: Optional[bool] = Field(alias='hideIfDefaultAmount')
-    splittable: Optional[bool]
-    free_of_charge_amount: Optional[int] = Field(alias="freeOfChargeAmount")
+    required: Optional[bool] = None
+    hide_if_default_amount: Optional[bool] = Field(None, alias='hideIfDefaultAmount')
+    splittable: Optional[bool] = None
+    free_of_charge_amount: Optional[int] = Field(None, alias="freeOfChargeAmount")
 
     def __str__(self):
         return self.id
@@ -722,33 +722,33 @@ class NPGroupModifierModel(BaseModel):
     min_amount: int = Field(alias="minAmount")
     max_amount: int = Field(alias="maxAmount")
     required: bool
-    child_modifiers_have_min_max_restrictions: Optional[bool] = Field(alias='childModifiersHaveMinMaxRestrictions')
+    child_modifiers_have_min_max_restrictions: Optional[bool] = Field(None, alias='childModifiersHaveMinMaxRestrictions')
     child_modifiers: List[NPModifierModel] = Field(alias='childModifiers')
-    hide_if_default_amount: Optional[bool] = Field(alias='hideIfDefaultAmount')
-    default_amount: Optional[int] = Field(alias="defaultAmount")
-    splittable: Optional[bool]
-    free_of_charge_amount: Optional[int] = Field(alias="freeOfChargeAmount")
+    hide_if_default_amount: Optional[bool] = Field(None, alias='hideIfDefaultAmount')
+    default_amount: Optional[int] = Field(None, alias="defaultAmount")
+    splittable: Optional[bool] = None
+    free_of_charge_amount: Optional[int] = Field(None, alias="freeOfChargeAmount")
 
     def __str__(self):
         return self.id
 
 
 class NProductModel(BaseModel):
-    fat_amount: Optional[float] = Field(alias="fatAmount")
-    proteins_amount: Optional[float] = Field(alias="proteinsAmount")
-    carbohydrates_amount: Optional[float] = Field(alias="energyAmount")
-    energy_amount: Optional[float] = Field(alias="carbohydratesAmount")
-    fat_full_amount: Optional[float] = Field(alias="fatFullAmount")
-    proteins_full_amount: Optional[float] = Field(alias="proteinsFullAmount")
-    carbohydrates_full_amount: Optional[float] = Field(alias="carbohydratesFullAmount")
-    energy_full_amount: Optional[float] = Field(alias="energyFullAmount")
-    weight: Optional[float]
-    group_id: Optional[str] = Field(alias="groupId")
-    product_category_id: Optional[str] = Field(alias="productCategoryId")
-    type: Optional[str]
+    fat_amount: Optional[float] = Field(None, alias="fatAmount")
+    proteins_amount: Optional[float] = Field(None, alias="proteinsAmount")
+    carbohydrates_amount: Optional[float] = Field(None, alias="energyAmount")
+    energy_amount: Optional[float] = Field(None, alias="carbohydratesAmount")
+    fat_full_amount: Optional[float] = Field(None, alias="fatFullAmount")
+    proteins_full_amount: Optional[float] = Field(None, alias="proteinsFullAmount")
+    carbohydrates_full_amount: Optional[float] = Field(None, alias="carbohydratesFullAmount")
+    energy_full_amount: Optional[float] = Field(None, alias="energyFullAmount")
+    weight: Optional[float] = None
+    group_id: Optional[str] = Field(None, alias="groupId")
+    product_category_id: Optional[str] = Field(None, alias="productCategoryId")
+    type: Optional[str] = None
     order_item_type: str = Field(alias="orderItemType")
-    modifier_schema_id: Optional[str] = Field(alias="modifierSchemaId")
-    modifier_schema_name: Optional[str] = Field(alias="modifierSchemaName")
+    modifier_schema_id: Optional[str] = Field(None, alias="modifierSchemaId")
+    modifier_schema_name: Optional[str] = Field(None, alias="modifierSchemaName")
     splittable: bool
     measure_unit: str = Field(alias="measureUnit")
     size_prices: List[NPSizePriceModel] = Field(alias="sizePrices")
@@ -756,22 +756,22 @@ class NProductModel(BaseModel):
     group_modifiers: List[Optional[NPGroupModifierModel]] = Field(alias='groupModifiers')
     image_links: List[str] = Field(alias="imageLinks")
     do_not_print_in_cheque: bool = Field(alias='doNotPrintInCheque')
-    parent_group: Optional[str] = Field(alias='parentGroup')
+    parent_group: Optional[str] = Field(None, alias='parentGroup')
     order: int
-    full_name_english: Optional[str] = Field(alias='fullNameEnglish')
+    full_name_english: Optional[str] = Field(None, alias='fullNameEnglish')
     use_balance_for_sell: bool = Field(alias='useBalanceForSell')
     can_set_open_price: bool = Field(alias="canSetOpenPrice")
     id: str
-    code: Optional[str]
+    code: Optional[str] = None
     name: str
-    description: Optional[str]
-    additional_info: Optional[str] = Field(alias='additionalInfo')
-    tags: Optional[List[str]]
-    is_deleted: Optional[bool] = Field(alias="isDeleted")
-    seo_description: Optional[str] = Field(alias="seoDescription")
-    seo_text: Optional[str] = Field(alias="seoText")
-    seo_keywords: Optional[str] = Field(alias="seoKeywords")
-    set_title: Optional[str] = Field(alias="seoTitle")
+    description: Optional[str] = None
+    additional_info: Optional[str] = Field(None, alias='additionalInfo')
+    tags: Optional[List[str]] = None
+    is_deleted: Optional[bool] = Field(None, alias="isDeleted")
+    seo_description: Optional[str] = Field(None, alias="seoDescription")
+    seo_text: Optional[str] = Field(None, alias="seoText")
+    seo_keywords: Optional[str] = Field(None, alias="seoKeywords")
+    set_title: Optional[str] = Field(None, alias="seoTitle")
 
     def __str__(self):
         return self.name
@@ -789,8 +789,8 @@ class BaseNomenclatureModel(BaseResponseModel):
 
 
 class BaseMenuModel(BaseResponseModel):
-    external_menus: Optional[List[IdNameModel]] = Field(alias="externalMenus")
-    price_categories: Optional[List[IdNameModel]] = Field(alias="priceCategories")
+    external_menus: Optional[List[IdNameModel]] = Field(None, alias="externalMenus")
+    price_categories: Optional[List[IdNameModel]] = Field(None, alias="priceCategories")
 
 
 class ICIAllergenGroupModel(IdNameModel):
@@ -844,7 +844,7 @@ class MBIdICItemSizeModel(BaseModel):
     sku: str
     size_code: str = Field(alias='sizeCode')
     size_name: str = Field(aliad='sizeName')
-    is_default: Optional[bool] = Field(alias="isDefault")
+    is_default: Optional[bool] = Field(None, alias="isDefault")
     portion_weight_grams: float = Field(alias='portionWeightGrams')
     size_id: str = Field(alias='sizeId')
     nutrition_per_hundred_grams: dict = Field(alias='nutritionPerHundredGrams')
@@ -892,7 +892,7 @@ class BaseCancelCausesModel(BaseResponseModel):
 class ORTItemModel(IdNameModel):
     order_service_type: str = Field(alias='orderServiceType')
     is_deleted: bool = Field(alias='isDeleted')
-    external_revision: Optional[int] = Field(alias="externalRevision")
+    external_revision: Optional[int] = Field(None, alias="externalRevision")
 
 
 class OrderTypeModel(BaseModel):
@@ -907,7 +907,7 @@ class BaseOrderTypesModel(BaseResponseModel):
 # Discounts
 class DIProductCategoryDiscountsModel(BaseModel):
     category_id: str = Field(alias="categoryId")
-    category_name: Optional[str] = Field(alias='categoryName')
+    category_name: Optional[str] = Field(None, alias='categoryName')
     percent: float
 
 
@@ -915,9 +915,9 @@ class DItemModel(IdNameModel):
     percent: float
     is_categorised_discount: bool = Field(alias='isCategorisedDiscount')
     product_category_discounts: List[DIProductCategoryDiscountsModel] = Field(alias='productCategoryDiscounts')
-    comment: Optional[str]
+    comment: Optional[str] = None
     can_be_applied_selectively: str = Field(alias='canBeAppliedSelectively')
-    min_order_sum: Optional[float] = Field(aliad='minOrderSum')
+    min_order_sum: Optional[float] = Field(None, aliad='minOrderSum')
     mode: str
     sum: float
     can_apply_by_card_number: bool = Field(alias='canApplyByCardNumber')
@@ -938,11 +938,11 @@ class BaseDiscountsModel(BaseResponseModel):
 
 class CouponInfo(BaseModel):
     id: str
-    number: Optional[str]
-    seriesName: Optional[str]
-    seriesId: Optional[str]
-    whenActivated: Optional[str]
-    isDeleted: Optional[str]
+    number: Optional[str] = None
+    seriesName: Optional[str] = None
+    seriesId: Optional[str] = None
+    whenActivated: Optional[str] = None
+    isDeleted: Optional[str] = None
 
 
 class SeriesWithNotActivatedCoupon(BaseModel):
@@ -955,15 +955,15 @@ class BaseCouponInfo(BaseModel):
 
 # Payment Types
 class PaymentTypeModel(IdNameModel):
-    code: Optional[str]
-    comment: Optional[str]
+    code: Optional[str] = None
+    comment: Optional[str] = None
     combinable: bool
-    external_revision: Optional[int] = Field(alias="externalRevision")
+    external_revision: Optional[int] = Field(None, alias="externalRevision")
     applicable_marketing_campaigns: List[str] = Field(alias="applicableMarketingCampaigns")
     is_deleted: bool = Field(alias='isDeleted')
     print_cheque: bool = Field(alias='printCheque')
-    payment_processing_type: Optional[str] = Field(alias='paymentProcessingType')
-    payment_type_kind: Optional[str] = Field(alias='paymentTypeKind')
+    payment_processing_type: Optional[str] = Field(None, alias='paymentProcessingType')
+    payment_type_kind: Optional[str] = Field(None, alias='paymentTypeKind')
     terminal_groups: List[TerminalGroupItemModel] = Field(alias='terminalGroups')
 
 
@@ -976,7 +976,7 @@ class BasePaymentTypesModel(BaseResponseModel):
 
 # Removal Types
 class RemovalTypeModel(IdNameModel):
-    comment: Optional[str]
+    comment: Optional[str] = None
     can_writeoff_to_cafe: bool = Field(alias="canWriteoffToCafe")
     can_writeoff_to_waiter: bool = Field(alias="canWriteoffToWaiter")
     can_writeoff_to_user: bool = Field(alias="canWriteoffToUser")
@@ -986,7 +986,46 @@ class RemovalTypeModel(IdNameModel):
 
 
 class BaseRemovalTypesModel(BaseResponseModel):
-    removal_types: List[RemovalTypeModel] = Field(alias="removalTypes")
+    removal_types: RemovalTypeModel = Field(alias="removalTypes")
+
+
+class Location(BaseModel):
+    latitude: int
+    longitude: int
+
+
+class AllowedItem(BaseModel):
+    terminal_group_id: str  = Field(None, alias="terminalGroupId")
+    organization_id: str = Field(None, alias="organizationId")
+    delivery_duration_in_minutes: int = Field(None, alias="deliveryDurationInMinutes")
+    zone: Optional[str] = None
+    delivery_service_product_id: Optional[str] = Field(None, alias="deliveryServiceProductId")
+
+
+class RejectItemData(BaseModel):
+    date_from: Optional[str] = Field(None, alias="dateFrom")
+    date_to: Optional[str] = Field(None, alias="dateTo")
+    allowed_week_days: Optional[List[str]] = Field(None, alias="allowedWeekDays")
+    min_sum: Optional[int] = Field(None, alias="minSum")
+
+
+class RejectedItem(BaseModel):
+    terminal_group_id: Optional[str] = Field(None, alias="terminalGroupId")
+    organization_id: Optional[str] = Field(None, alias="organizationId")
+    zone: Optional[str] = None
+    reject_code: str = Field(alias="rejectCode")
+    reject_hint: str = Field(alias="rejectHint")
+    reject_item_data: Optional[RejectItemData] = Field(None, alias="rejectItemData")
+
+
+class DeliveryRestrictionsAllowedModel(BaseModel):
+    correlation_id: str = Field(alias="correlationId")
+    is_allowed: bool = Field(alias="isAllowed")
+    reject_cause: Optional[str] = Field(None, alias="rejectCause")
+    address_external_id: Optional[str] = Field(None, alias="addressExternalId")
+    location: Optional[Location] = None
+    allowed_items: Optional[List[AllowedItem]] = Field(None, alias="allowedItems")
+    rejected_items: Optional[List[RejectedItem]] = Field(None, alias="rejectedItems")
 
 
 # Получите подсказки для группы api-logins rms.
@@ -1001,17 +1040,17 @@ class BaseTipsTypesModel(BaseResponseModel):
 
 
 class BaseStatusExceptModel(BaseModel):
-    message: Optional[str]
+    message: Optional[str] = None
 
 
 class BaseStatusModel(BaseModel):
     state: COICreationStatusModel
-    exception: Optional[BaseStatusExceptModel]
+    exception: Optional[BaseStatusExceptModel] = None
 
 
 class CSGProductModel(BaseModel):
     product_id: str = Field(alias="productId")
-    size_id: Optional[str] = Field(alias="sizeId")
+    size_id: Optional[str] = Field(None, alias="sizeId")
     forbidden_modifiers: str = Field(alias="forbiddenModifiers")
     price_modification_amount: float = Field(alias="priceModificationAmount")
 
@@ -1023,7 +1062,7 @@ class CSGroupModel(IdNameModel):
 
 class ComboSpecificationModel(BaseModel):
     source_action_id: str = Field(alias="sourceActionId")
-    category_id: Optional[Any] = Field(alias="categoryId")
+    category_id: Optional[Any] = Field(None, alias="categoryId")
     name: str
     price_modification_type: int = Field(alias="priceModificationType")
     price_modification: float = Field(alias="priceModification")
@@ -1046,12 +1085,12 @@ class BaseOrderByTableModel(BaseModel):
 
 class EIEmployeeModel(BaseModel):
     id: str
-    first_name: Optional[str] = Field(alias='firstName')
-    middle_name: Optional[str] = Field(alias='middleName')
-    last_name: Optional[str] = Field(alias='lastName')
-    email: Optional[str]
-    phone: Optional[str]
-    cell_phone: Optional[str] = Field(alias="cellPhone")
+    first_name: Optional[str] = Field(None, alias='firstName')
+    middle_name: Optional[str] = Field(None, alias='middleName')
+    last_name: Optional[str] = Field(None, alias='lastName')
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    cell_phone: Optional[str] = Field(None, alias="cellPhone")
 
 
 class BaseEInfoModel(BaseResponseModel):
@@ -1070,7 +1109,7 @@ class CardCIModel(BaseModel):
     id: str
     track: str
     number: str
-    valid_to_date: Optional[str] = Field(alias='validToDate')
+    valid_to_date: Optional[str] = Field(None, alias='validToDate')
 
 
 class CategoriesCIModel(IdNameModel):
@@ -1085,30 +1124,30 @@ class WalletBalanceCIModel(IdNameModel):
 
 class CustomerInfoModel(BaseModel):
     id: str
-    referrer_id: Optional[str] = Field(alias='referrerId')
-    name: Optional[str]
-    surname: Optional[str]
-    middle_name: Optional[str] = Field(alias="middleName")
-    comment: Optional[str]
-    phone: Optional[str]
-    culture_name: Optional[str] = Field(alias="cultureName")
-    birthday: Optional[str]
-    email: Optional[str]
+    referrer_id: Optional[str] = Field(None, alias='referrerId')
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    middle_name: Optional[str] = Field(None, alias="middleName")
+    comment: Optional[str] = None
+    phone: Optional[str] = None
+    culture_name: Optional[str] = Field(None, alias="cultureName")
+    birthday: Optional[str] = None
+    email: Optional[str] = None
     sex: int
     consent_status: int = Field(alias="consentStatus")
     anonymized: bool
-    cards: Optional[List[CardCIModel]]
-    categories: Optional[List[CategoriesCIModel]]
-    wallet_balances: Optional[List[WalletBalanceCIModel]] = Field(alias="walletBalances")
-    user_data: Optional[str] = Field(alias="userData")
-    shouldReceivePromoActionsInfo: Optional[bool] = Field(alias="shouldReceivePromoActionsInfo")
-    shouldReceiveLoyaltyInfo: Optional[bool] = Field(alias="shouldReceiveLoyaltyInfo")
-    shouldReceiveOrderStatusInfo: Optional[bool] = Field(alias="shouldReceiveOrderStatusInfo")
-    personalDataConsentFrom: Optional[str] = Field(alias="personalDataConsentFrom")
-    personalDataConsentTo: Optional[str] = Field(alias="personalDataConsentTo")
-    personalDataProcessingFrom: Optional[str] = Field(alias="personalDataProcessingFrom")
-    personalDataProcessingTo: Optional[str] = Field(alias="personalDataProcessingTo")
-    isDeleted: Optional[bool] = Field(alias="isDeleted")
+    cards: Optional[List[CardCIModel]] = None
+    categories: Optional[List[CategoriesCIModel]] = None
+    wallet_balances: Optional[List[WalletBalanceCIModel]] = Field(None, alias="walletBalances")
+    user_data: Optional[str] = Field(None, alias="userData")
+    shouldReceivePromoActionsInfo: Optional[bool] = Field(None, alias="shouldReceivePromoActionsInfo")
+    shouldReceiveLoyaltyInfo: Optional[bool] = Field(None, alias="shouldReceiveLoyaltyInfo")
+    shouldReceiveOrderStatusInfo: Optional[bool] = Field(None, alias="shouldReceiveOrderStatusInfo")
+    personalDataConsentFrom: Optional[str] = Field(None, alias="personalDataConsentFrom")
+    personalDataConsentTo: Optional[str] = Field(None, alias="personalDataConsentTo")
+    personalDataProcessingFrom: Optional[str] = Field(None, alias="personalDataProcessingFrom")
+    personalDataProcessingTo: Optional[str] = Field(None, alias="personalDataProcessingTo")
+    isDeleted: Optional[bool] = Field(None, alias="isDeleted")
 
 
 class CustomerCreateOrUpdateModel(BaseModel):
@@ -1122,17 +1161,17 @@ class CustomerProgramAddResponse(BaseModel):
 class ItemsTerminalGroupStopListResponse(BaseModel):
     balance: Decimal
     product_id: str = Field(alias="productId")
-    size_id: Optional[str] = Field(alias="sizeId")
+    size_id: Optional[str] = Field(None, alias="sizeId")
 
 
 class ItemsTerminalGroupStopListsResponse(BaseModel):
-    terminal_group_id: Optional[str] = Field(alias="terminalGroupId")
-    items: Optional[List[ItemsTerminalGroupStopListResponse]]
+    terminal_group_id: Optional[str] = Field(None, alias="terminalGroupId")
+    items: Optional[List[ItemsTerminalGroupStopListResponse]] = None
 
 
 class TerminalGroupStopListsResponse(BaseModel):
     organization_id: str = Field(alias='organizationId')
-    items: Optional[List[ItemsTerminalGroupStopListsResponse]]
+    items: Optional[List[ItemsTerminalGroupStopListsResponse]] = None
 
 
 class StopListsResponse(BaseResponseModel):
@@ -1142,11 +1181,11 @@ class StopListsResponse(BaseResponseModel):
 class RejectedItemsCSLResponse(BaseModel):
     balance: Decimal
     product_id: str = Field(alias="productId")
-    size_id: Optional[str] = Field(alias="sizeId")
+    size_id: Optional[str] = Field(None, alias="sizeId")
 
 
 class CheckStopListsResponse(BaseResponseModel):
-    rejected_items: Optional[List[RejectedItemsCSLResponse]] = Field(alias="rejectedItems")
+    rejected_items: Optional[List[RejectedItemsCSLResponse]] = Field(None, alias="rejectedItems")
 
 
 class WalletHoldResponse(BaseModel):

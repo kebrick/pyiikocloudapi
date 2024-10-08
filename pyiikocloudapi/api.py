@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import pprint
 import uuid
 from datetime import date, timedelta
 from datetime import datetime
@@ -223,6 +224,7 @@ class BaseAPI:
             except Exception as err:
                 self.logger.debug(f"{err=}")
         response_data: dict = json.loads(response.content)
+        pprint.pprint(response_data)
         self.__last_data = response_data
         if self.__return_dict:
             return response_data
@@ -904,6 +906,19 @@ class DeliveryRestrictions(BaseAPI):
                    delivery_date: str = None, delivery_sum: float = None, discount_sum: float = None,
                    timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
         CustomErrorModel, BaseRemovalTypesModel]:
+        """
+        Get suitable terminal groups for delivery restrictions.
+        :param organization_ids:
+        :param is_courier_delivery:
+        :param delivery_address:
+        :param order_location:
+        :param order_items:
+        :param delivery_date:
+        :param delivery_sum:
+        :param discount_sum:
+        :param timeout:
+        :return:
+        """
         if not bool(organization_ids):
             raise ParamSetException(self.__class__.__qualname__,
                                     self.dr_allowed.__name__,
@@ -929,8 +944,8 @@ class DeliveryRestrictions(BaseAPI):
             return self._post_request(
                 url="/api/1/delivery_restrictions/allowed",
                 data=data,
-                timeout=timeout
-                # model_response_data=BaseRemovalTypesModel
+                timeout=timeout,
+                model_response_data=DeliveryRestrictionsAllowedModel
             )
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
