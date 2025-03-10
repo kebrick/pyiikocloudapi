@@ -2,7 +2,7 @@ from setuptools import setup
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
-VERSION = '0.0.20'
+VERSION = '0.0.21'
 setup(
     name='pyiikocloudapi',
     version=VERSION,

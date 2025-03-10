@@ -1008,8 +1008,6 @@ class Orders(BaseAPI):
         :return:
         """
         # https://api-ru.iiko.services/api/1/deliveries/by_id
-        if not isinstance(order_ids, list):
-            raise TypeError("type order_ids != list")
 
         data = {
             "organizationIds": organization_ids,
