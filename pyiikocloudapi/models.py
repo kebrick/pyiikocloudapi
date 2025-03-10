@@ -136,9 +136,10 @@ class CustomerModel(BaseModel):
     surname: Optional[str] = None
     comment: Optional[str] = None
     gender: str
-    inBlacklist: bool
-    blacklistReason: Optional[str] = None
+    in_blacklist: bool = Field(False, alias="inBlacklist")
+    blacklist_reason: Optional[str] = Field(None, alias="blacklistReason")
     birthdate: Optional[str] = None
+    type: str = Field("regular", alias="type")
 
 
 class CauseModel(BaseModel):
@@ -295,7 +296,7 @@ class OrderProductItemModel(BaseModel):
 
 class CreatedDeliveryOrderModel(BaseModel):
     parent_delivery_id: Optional[str] = Field(None, alias="parentDeliveryId")
-    customer: CustomerModel
+    customer: Optional[CustomerModel] = Field(None, alias="customer")
     phone: str
     # TODO(Kebrick): дописать модель DeliveryPointModel для ключа delivery_point
     delivery_point: Optional[dict] = Field(None, alias="deliveryPoint")
@@ -329,7 +330,6 @@ class CreatedDeliveryOrderModel(BaseModel):
     when_closed: Optional[str] = Field(None, alias="whenClosed")
     conception: Optional[ConceptionOrderModel] = None
     guests_info: GuestsInfoOrderModel = Field(alias="guestsInfo")
-    # TODO(Kebrick): дописать модель ItemsOrderModel для ключа items
     items: List[OrderProductItemModel]
     combos: Optional[List[CombosItemOrderModel]] = None
     payments: Optional[List[PaymentItemOrderModel]] = None
@@ -722,7 +722,8 @@ class NPGroupModifierModel(BaseModel):
     min_amount: int = Field(alias="minAmount")
     max_amount: int = Field(alias="maxAmount")
     required: bool
-    child_modifiers_have_min_max_restrictions: Optional[bool] = Field(None, alias='childModifiersHaveMinMaxRestrictions')
+    child_modifiers_have_min_max_restrictions: Optional[bool] = Field(None,
+                                                                      alias='childModifiersHaveMinMaxRestrictions')
     child_modifiers: List[NPModifierModel] = Field(alias='childModifiers')
     hide_if_default_amount: Optional[bool] = Field(None, alias='hideIfDefaultAmount')
     default_amount: Optional[int] = Field(None, alias="defaultAmount")
@@ -995,7 +996,7 @@ class Location(BaseModel):
 
 
 class AllowedItem(BaseModel):
-    terminal_group_id: str  = Field(None, alias="terminalGroupId")
+    terminal_group_id: str = Field(None, alias="terminalGroupId")
     organization_id: str = Field(None, alias="organizationId")
     delivery_duration_in_minutes: int = Field(None, alias="deliveryDurationInMinutes")
     zone: Optional[str] = None
@@ -1190,3 +1191,68 @@ class CheckStopListsResponse(BaseResponseModel):
 
 class WalletHoldResponse(BaseModel):
     transaction_id: str = Field(alias="transactionId")
+
+
+# Models for WebHook
+from datetime import datetime
+
+
+class ErrorInfo(BaseModel):
+    code: str
+    message: Optional[str] = None
+    additional_data: Optional[Any] = Field(None, alias="additionalData")
+
+
+
+class ExternalData(BaseModel):
+    key: str
+    value: str
+
+# TODO(kebrick): Class for order status
+class OrderStatus(str, Enum):
+    unconfirmed = "Unconfirmed"
+    wait_cooking = "WaitCooking"
+    ready_for_cooking = "ReadyForCooking"
+    cooking_started = "CookingStarted"
+    cooking_completed = "CookingCompleted"
+    waiting = "Waiting"
+    on_way = "OnWay"
+    delivered = "Delivered"
+    closed = "Closed"
+    cancelled = "Cancelled"
+
+class LoyaltyInfoModel(BaseModel):
+    coupon: Optional[str] = None
+    applied_manual_conditions: Optional[List[str]] = Field(None, alias="appliedManualConditions")
+
+class WHDeliveryOrder(CreatedDeliveryOrderModel):
+    when_cooking_completed: Optional[datetime] = Field(None, alias="whenCookingCompleted")
+    moved_to_delivery_id: Optional[str] = Field(None, alias="movedToDeliveryId")
+    movedToTerminalGroupId: Optional[str] = Field(None, alias="movedToTerminalGroupId")
+    movedToOrganizationId: Optional[str] = Field(None, alias="movedToOrganizationId")
+    menuId: Optional[str] = Field(None, alias="menuId")
+    deliveryZone: Optional[str] = Field(None, alias="deliveryZone")
+    estimatedTime: Optional[datetime] = Field(None, alias="estimatedTime")
+    is_asap: Optional[bool] = Field(None, alias="isAsap")
+    when_packed: Optional[datetime] = Field(None, alias="whenPacked")
+    loyalty_info: Optional[LoyaltyInfoModel] = Field(None, alias="loyaltyInfo")
+    external_data: Optional[List[ExternalData]] = Field(None, alias="externalData")
+
+
+class EventInfo(BaseModel):
+    id: str
+    pos_id: Optional[str] = Field(None, alias="posId")
+    external_number: Optional[str] = Field(None, alias="externalNumber")
+    organization_id: str = Field("", alias="organizationId")
+    timestamp: int
+    creation_status: str = Field("", alias="creationStatus")
+    error_info: Optional[ErrorInfo] = Field(None, alias="errorInfo")
+    order: Optional[WHDeliveryOrder]
+
+
+class WebHookDeliveryOrderEventInfoModel(BaseModel):
+    event_type: str = Field('', alias="eventType")
+    event_time: Optional[datetime] = Field(None, alias="eventTime")
+    organization_id: str = Field("", alias="organizationId")
+    correlation_id: str = Field("", alias="correlationId")
+    event_info: Optional[EventInfo] = Field(None, alias="eventInfo")

@@ -224,7 +224,6 @@ class BaseAPI:
             except Exception as err:
                 self.logger.debug(f"{err=}")
         response_data: dict = json.loads(response.content)
-        pprint.pprint(response_data)
         self.__last_data = response_data
         if self.__return_dict:
             return response_data
@@ -286,6 +285,14 @@ class BaseAPI:
             raise TypeError(self.__class__.__qualname__,
                             self.organizations.__name__,
                             f"Не удалось получить организации: \n{err}")
+class WebHook(BaseAPI):
+    @staticmethod
+    def parse_webhook_order(data: List[dict]) -> List[WebHookDeliveryOrderEventInfoModel]:
+        return [WebHookDeliveryOrderEventInfoModel.parse_obj(order_info) for order_info in data]
+    @staticmethod
+    def parse_webhook_reserve(data: List[dict]) -> List[WebHookDeliveryOrderEventInfoModel]:
+        raise FutureWarning('In developing!')
+
 
 
 class Commands(BaseAPI):
@@ -1936,5 +1943,5 @@ class Customers(BaseAPI):
 
 
 class IikoTransport(Orders, Deliveries, Employees, Address, DeliveryRestrictions, TerminalGroup, Menu, Dictionaries,
-                    DiscountPromotion, Commands, Notifications, Customers):
+                    DiscountPromotion, Commands, Notifications, Customers,WebHook):
     pass
