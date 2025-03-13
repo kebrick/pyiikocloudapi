@@ -248,11 +248,11 @@ class DiscountsItemOrderModel(BaseModel):
 class OrderItemDeletionMethodModel(BaseModel):
     id: str
     comment: Optional[str] = None
-    removal_type: IdNameModel
+    removal_type: Optional[IdNameModel] = Field(None, alias="removalType")
 
 
 class OrderItemDeletedModel(BaseModel):
-    deletion_method: OrderItemDeletionMethodModel
+    deletion_method: Optional[OrderItemDeletionMethodModel] = Field(None, alias="deletionMethod")
 
 
 class CDOrderTypeModel(BaseModel):
@@ -269,7 +269,7 @@ class MOrderProductItemModel(BaseModel):
     price: float
     price_predefined: bool = Field(alias="pricePredefined")
     result_sum: Optional[float] = None
-    deleted: Optional[OrderItemDeletedModel] = None
+    deleted: Optional[OrderItemDeletedModel] = Field(None, alias="deleted")
     position_id: Optional[str] = Field(None, alias="positionId")
     default_amount: Optional[int] = Field(None, alias="defaultAmount")
     hide_if_default_amount: Optional[bool] = Field(None, alias="hideIfDefaultAmount")
