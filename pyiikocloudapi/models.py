@@ -316,7 +316,7 @@ class CreatedDeliveryOrderModel(BaseModel):
     delivery_duration: Optional[int] = Field(None, alias="deliveryDuration")
     index_in_courier_route: Optional[int] = Field(None, alias="indexInCourierRoute")
     cooking_start_time: str = Field(alias="cookingStartTime")
-    is_deleted: bool = Field(alias="isDeleted")
+    is_deleted: Optional[bool] = Field(None,alias="isDeleted")
     when_received_by_api: Optional[str] = Field(None, alias="whenReceivedByApi")
     when_received_from_front: Optional[str] = Field(None, alias="whenReceivedFromFront")
     moved_from_delivery_id: Optional[str] = Field(None, alias="movedFromDeliveryId")
