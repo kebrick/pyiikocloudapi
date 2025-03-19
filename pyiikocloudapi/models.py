@@ -1176,7 +1176,7 @@ class TerminalGroupStopListsResponse(BaseModel):
 
 
 class StopListsResponse(BaseResponseModel):
-    terminal_group_stop_lists: str = Field(alias="terminalGroupStopLists")
+    terminal_group_stop_lists: List[TerminalGroupStopListsResponse] = Field(alias="terminalGroupStopLists")
 
 
 class RejectedItemsCSLResponse(BaseModel):

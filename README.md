@@ -1,4 +1,4 @@
-# pyiikocloudapi - python iikoCloud API сервис
+# pyiikocloudapi - python iiko Cloud API сервис
 
 ![](https://www.python.org/static/img/python-logo.png) 
 
@@ -33,7 +33,7 @@ pip install pyiikocloudapi
 
 
 
-Если вам нужно чтобы ответ был в dict то либо 
+Если вам нужно чтобы ответ был в dict - то либо 
     
     api = IikoTransport(api_login, return_dict=True)
 
@@ -59,7 +59,7 @@ Example
 **Время жизни маркера доступа равно ~60 минутам.**
 
 
-###Доп. инфа
+###Дополнительная информация
 iiko Transport(iiko Cloud API) по словам _**разработчиков**_ это по сути горячие хранилище без доступа к данным БД
 
 `sourceKey` это "Источник заказа" из настроек в iikoWeb

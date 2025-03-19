@@ -2,11 +2,11 @@ from setuptools import setup
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
-VERSION = '0.0.24'
+VERSION = '0.0.25'
 setup(
     name='pyiikocloudapi',
     version=VERSION,
-    description='Python services for convenient work with iiko Transport',
+    description='Python services for convenient work with iiko Transport / iiko cloud api',
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=['pyiikocloudapi'],
