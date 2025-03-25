@@ -316,7 +316,7 @@ class CreatedDeliveryOrderModel(BaseModel):
     delivery_duration: Optional[int] = Field(None, alias="deliveryDuration")
     index_in_courier_route: Optional[int] = Field(None, alias="indexInCourierRoute")
     cooking_start_time: str = Field(alias="cookingStartTime")
-    is_deleted: Optional[bool] = Field(None,alias="isDeleted")
+    is_deleted: Optional[bool] = Field(None, alias="isDeleted")
     when_received_by_api: Optional[str] = Field(None, alias="whenReceivedByApi")
     when_received_from_front: Optional[str] = Field(None, alias="whenReceivedFromFront")
     moved_from_delivery_id: Optional[str] = Field(None, alias="movedFromDeliveryId")
@@ -1203,12 +1203,12 @@ class ErrorInfo(BaseModel):
     additional_data: Optional[Any] = Field(None, alias="additionalData")
 
 
-
 class ExternalData(BaseModel):
     key: str
     value: str
 
-# TODO(kebrick): Class for order status
+
+# TODO(kebrick): Classes for order status
 class OrderStatus(str, Enum):
     unconfirmed = "Unconfirmed"
     wait_cooking = "WaitCooking"
@@ -1221,18 +1221,20 @@ class OrderStatus(str, Enum):
     closed = "Closed"
     cancelled = "Cancelled"
 
+
 class LoyaltyInfoModel(BaseModel):
     coupon: Optional[str] = None
     applied_manual_conditions: Optional[List[str]] = Field(None, alias="appliedManualConditions")
 
+
 class WHDeliveryOrder(CreatedDeliveryOrderModel):
     when_cooking_completed: Optional[datetime] = Field(None, alias="whenCookingCompleted")
     moved_to_delivery_id: Optional[str] = Field(None, alias="movedToDeliveryId")
-    movedToTerminalGroupId: Optional[str] = Field(None, alias="movedToTerminalGroupId")
-    movedToOrganizationId: Optional[str] = Field(None, alias="movedToOrganizationId")
+    moved_to_terminal_group_id: Optional[str] = Field(None, alias="movedToTerminalGroupId")
+    moved_to_organization_id: Optional[str] = Field(None, alias="movedToOrganizationId")
     menuId: Optional[str] = Field(None, alias="menuId")
-    deliveryZone: Optional[str] = Field(None, alias="deliveryZone")
-    estimatedTime: Optional[datetime] = Field(None, alias="estimatedTime")
+    delivery_zone: Optional[str] = Field(None, alias="deliveryZone")
+    estimated_time: Optional[datetime] = Field(None, alias="estimatedTime")
     is_asap: Optional[bool] = Field(None, alias="isAsap")
     when_packed: Optional[datetime] = Field(None, alias="whenPacked")
     loyalty_info: Optional[LoyaltyInfoModel] = Field(None, alias="loyaltyInfo")
