@@ -4,6 +4,6 @@ from .models import *
 # import card
 NAME = "pyiikocloudapi"
 __author__ = 'kebrick'
-__version__ = '0.0.26'
+__version__ = '0.0.27'
 __email__ = 'ruban.kebr@gmail.com'
 

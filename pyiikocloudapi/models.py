@@ -699,7 +699,7 @@ class NPSPPriceModel(BaseModel):
 
 
 class NPSizePriceModel(BaseModel):
-    size_id: Optional[str] = None
+    size_id: Optional[str] = Field(None, alias="sizeId")
     price: NPSPPriceModel
 
 

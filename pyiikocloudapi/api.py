@@ -20,7 +20,7 @@ class BaseAPI:
 
     def __init__(self, api_login: str, session: Optional[requests.Session] = None, debug: bool = False,
                  base_url: str = None, working_token: str = None, base_headers: dict = None, logger: Optional[
-            logging.Logger] = None, return_dict: bool = False):
+            logging.Logger] = None, return_dict: bool = False, *args, **kwargs):
         """
 
         :param api_login: login api iiko cloud
