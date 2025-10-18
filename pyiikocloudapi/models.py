@@ -17,6 +17,7 @@ class BaseResponseModel(BaseModel):
     correlation_id: Optional[str] = Field(None, alias='correlationId')
 
 
+
 class ErrorModel(BaseResponseModel):
     error_description: Optional[str] = Field(None, alias='errorDescription')
     error: Optional[str] = None
@@ -119,6 +120,11 @@ class EmployeesModel(BaseModel):
     organization_id: str = Field(alias='organizationId')
     items: Optional[List[EmployeeItemModel]] = None
 
+class EmployeeTerminalModel(BaseModel):
+    terminal_group_ids: List[str] = Field(alias='terminalGroupIds')
+
+class EmployeeIsOpenModel(ErrorModel):
+   is_session_Opened: Optional[bool] = Field(None, alias='isSessionOpened')
 
 class CouriersModel(BaseResponseModel):
     employees: List[EmployeesModel]

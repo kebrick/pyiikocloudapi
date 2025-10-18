@@ -131,7 +131,11 @@ iiko Transport(iiko Cloud API) по словам _**разработчиков**
   - [ ] [Returns list of all employees which are delivery drivers in specified restaurants, and checks whether each employee has passed role.](https://api-ru.iiko.services/#tag/Employees/paths/~1api~11~1employees~1couriers~1by_role/post)
   - [ ] [Returns list of all active (courier session is opened) courier's locations which are delivery drivers in specified restaurant and are clocked in on specified delivery terminal.](https://api-ru.iiko.services/#tag/Employees/paths/~1api~11~1employees~1couriers~1active_location~1by_terminal/post)
   - [ ] [Returns list of all active (courier session is opened) courier's locations which are delivery drivers in specified restaurants.](https://api-ru.iiko.services/#tag/Employees/paths/~1api~11~1employees~1couriers~1active_location/post)
-  - [ ] [Returns employee info.](https://api-ru.iiko.services/#tag/Employees/paths/~1api~11~1employees~1info/post)
+  - [x] [Returns employee info.](https://api-ru.iiko.services/#tag/Employees/paths/~1api~11~1employees~1info/post)
+  - [x] [Open personal session.](https://api-ru.iiko.services/docs#tag/Employees/paths/~1api~11~1employees~1shift~1clockin/post)
+  - [x] [Close personal session.](https://api-ru.iiko.services/docs#tag/Employees/paths/~1api~11~1employees~1shift~1clockout/post)
+  - [x] [Check if personal session is open.](https://api-ru.iiko.services/docs#tag/Employees/paths/~1api~11~1employees~1shift~1is_open/post)
+  - [x] [Check if personal session is open.](https://api-ru.iiko.services/docs#tag/Employees/paths/~1api~11~1employees~1shifts~1by_courier/post)
 - wMarketing sources
   - [ ] [Marketing sources.](https://api-ru.iiko.services/#tag/Marketing-sources/paths/~1api~11~1marketing_sources/post)
 - Drafts

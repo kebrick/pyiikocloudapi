@@ -274,6 +274,8 @@ class BaseAPI:
             )
             if isinstance(response_data, BaseOrganizationsModel):
                 self.__convert_org_data(data=response_data)
+            if self.return_dict:
+                self.organizations_ids=[org.get('id') for org in response_data.get("organizations", {})]
             return response_data
 
 
@@ -285,14 +287,16 @@ class BaseAPI:
             raise TypeError(self.__class__.__qualname__,
                             self.organizations.__name__,
                             f"Не удалось получить организации: \n{err}")
+
+
 class WebHook(BaseAPI):
     @staticmethod
     def parse_webhook_order(data: List[dict]) -> List[WebHookDeliveryOrderEventInfoModel]:
         return [WebHookDeliveryOrderEventInfoModel.parse_obj(order_info) for order_info in data]
+
     @staticmethod
     def parse_webhook_reserve(data: List[dict]) -> List[WebHookDeliveryOrderEventInfoModel]:
         raise FutureWarning('In developing!')
-
 
 
 class Commands(BaseAPI):
@@ -602,6 +606,7 @@ class Menu(BaseAPI):
             raise TypeError(self.__class__.__qualname__,
                             self.menu_by_id.__name__,
                             f"Не удалось получить внешнее меню по ID.: \n{err}")
+
     def stop_lists(self, organization_ids: List[str], return_size: bool = False,
                    terminal_groups_ids: List[str] = None,
                    timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
@@ -631,9 +636,10 @@ class Menu(BaseAPI):
             raise TypeError(self.__class__.__qualname__,
                             self.stop_lists.__name__,
                             f"Не удалось получить товары, которых нет в наличии: \n{err}")
-    def stop_lists_check(self, organization_id: str,  terminal_group_id: str,
+
+    def stop_lists_check(self, organization_id: str, terminal_group_id: str,
                          items: dict,
-                   timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+                         timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
         CustomErrorModel, CheckStopListsResponse]:
         """"""
 
@@ -712,7 +718,7 @@ class Menu(BaseAPI):
 class TerminalGroup(BaseAPI):
     def terminal_groups(self, organization_ids: List[str], include_disabled: bool = False,
                         timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[CustomErrorModel,
-                                                                  BaseTerminalGroupsModel]:
+    BaseTerminalGroupsModel]:
         """
 
         :param organization_ids: 	Array of strings <uuid>, Organizations IDs for which information is requested.
@@ -747,7 +753,7 @@ class TerminalGroup(BaseAPI):
 
     def is_alive(self, organization_ids: List[str], terminal_group_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT) -> \
         Union[CustomErrorModel,
-              BaseTGIsAliveyModel]:
+        BaseTGIsAliveyModel]:
         """
 
         :param terminal_group_ids:
@@ -972,7 +978,8 @@ class Orders(BaseAPI):
         """"""
 
         data = {
-            "organizationId": organization_id, #'organizationId' instead of 'organizationIds'. 'errorDescription': "Required property 'organizationId' not found in JSON.
+            "organizationId": organization_id,
+            # 'organizationId' instead of 'organizationIds'. 'errorDescription': "Required property 'organizationId' not found in JSON.
             "terminalGroupId": terminal_group_id,
             "order": order,
         }
@@ -1020,13 +1027,13 @@ class Orders(BaseAPI):
             "organizationIds": organization_ids,
             "orderIds": order_ids,
         }
-        if(source_keys is not None):
+        if (source_keys is not None):
             data["sourceKeys"] = source_keys
 
-        if(pos_order_ids is not None):
+        if (pos_order_ids is not None):
             data["posOrderIds"] = pos_order_ids
 
-        if(return_external_data_keys is not None):
+        if (return_external_data_keys is not None):
             data["returnExternalDataKeys"] = return_external_data_keys
 
         try:
@@ -1360,7 +1367,7 @@ class Deliveries(BaseAPI):
                                                    source_keys: Optional[List[str]] = None,
                                                    order_ids: Optional[List[Union[str, uuid.UUID]]] = None,
                                                    timeout=BaseAPI.DEFAULT_TIMEOUT
-                                                   ):
+                                                   ) -> ByDeliveryDateAndSourceKeyAndFilter or CustomErrorModel:
         """
 
         :param organization_id: List
@@ -1516,11 +1523,11 @@ class Notifications(BaseAPI):
 
 class Employees(BaseAPI):
 
-    def couriers(self, organization_id: str, timeout=BaseAPI.DEFAULT_TIMEOUT):
+    def couriers(self, organization_ids: List[str], timeout=BaseAPI.DEFAULT_TIMEOUT):
 
         #     https://api-ru.iiko.services/api/1/employees/couriers
         data = {
-            "organizationId": organization_id,
+            "organizationIds": organization_ids,
         }
 
         try:
@@ -1581,9 +1588,147 @@ class Employees(BaseAPI):
                                 self.couriers.__name__,
                                 f"Не удалось: \n{err}")
 
+    def employees_shift_clockin(self, organization_id: str, terminal_group_id: str, employee_id: str,
+                                role_id: Optional[str] = None, timeout=BaseAPI.DEFAULT_TIMEOUT):
+        """
+        Open personal session.
+        This method is a command. Use api/1/commands/status method to get the progress status.
+        Restriction group: Employees: shifts.
+
+        :param organization_id: Can be obtained by /api/1/organizations
+        :param terminal_group_id: Can be obtained by /api/1/terminal_groups
+        :param employee_id: Employee ID.
+        :param role_id: Must be null if the restaurant doesn't use roles, otherwise not-null role must be specified.
+        :param timeout:
+        :return:
+        """
+        data = {
+            "organizationId": organization_id,
+            'terminalGroupId': terminal_group_id,
+            'employeeId': employee_id,
+        }
+        if role_id is not None: data["roleId"] = role_id
+        try:
+
+            return self._post_request(
+                url="/api/1/employees/shift/clockin",
+                data=data,
+                model_response_data=ErrorModel,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.couriers.__name__,
+                                f"Не удалось открыть персональную сессию: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.couriers.__name__,
+                                f"Не удалось: \n{err}")
+
+    def employees_shift_clockout(self, organization_id: str, terminal_group_id: str, employee_id: str,
+                                 timeout=BaseAPI.DEFAULT_TIMEOUT):
+        """
+        Close personal session.
+        This method is a command. Use api/1/commands/status method to get the progress status.
+        Restriction group: Employees: shifts.
+
+        :param organization_id: Can be obtained by /api/1/organizations
+        :param terminal_group_id: Can be obtained by /api/1/terminal_groups
+        :param employee_id: Employee ID.
+        :param timeout:
+        :return: ErrorModel || CustomErrorModel
+        """
+        data = {
+            "organizationId": organization_id,
+            'terminalGroupId': terminal_group_id,
+            'employeeId': employee_id,
+        }
+        try:
+
+            return self._post_request(
+                url="/api/1/employees/shift/clockout",
+                data=data,
+                model_response_data=ErrorModel,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.couriers.__name__,
+                                f"Не удалось закрыть персональную сессию: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.couriers.__name__,
+                                f"Не удалось: \n{err}")
+
+    def employees_shift_is_open(self, organization_id: str, terminal_group_id: str, employee_id: str,
+                                timeout=BaseAPI.DEFAULT_TIMEOUT):
+        """
+        Check if personal session is open.
+
+        :param organization_id: Can be obtained by /api/1/organizations
+        :param terminal_group_id: Can be obtained by /api/1/terminal_groups
+        :param employee_id: Employee ID.
+        :param timeout: EmployeeModel or CustomErrorModel
+        :return:
+        """
+        data = {
+            "organizationId": organization_id,
+            'terminalGroupId': terminal_group_id,
+            'employeeId': employee_id,
+        }
+        try:
+
+            return self._post_request(
+                url="/api/1/employees/shift/clockout",
+                data=data,
+                model_response_data=EmployeeModel,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.couriers.__name__,
+                                f"Не удалось проверить, открыта ли персональная сессия: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.couriers.__name__,
+                                f"Не удалось: \n{err}")
+
+    def employees_shift_by_courier(self, employee_id: str, timeout=BaseAPI.DEFAULT_TIMEOUT):
+        """
+        Get terminal groups where employee session is opened.
+
+        :param employee_id:
+        :param timeout:
+        :return: EmployeeTerminalModel or CustomErrorModel
+        """
+        data = {
+            'employeeId': employee_id,
+        }
+        try:
+
+            return self._post_request(
+                url="/api/1/employees/shift/by_courier",
+                data=data,
+                model_response_data=EmployeeTerminalModel,
+                timeout=timeout
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.couriers.__name__,
+                                f"Не удалось получить список групп терминалов, в которых открыт сеанс сотрудника: \n{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.couriers.__name__,
+                                f"Не удалось: \n{err}")
+
 
 class Customers(BaseAPI):
-    def customer_info(self, organization_id: str, identifier: str, type: str, timeout=BaseAPI.DEFAULT_TIMEOUT)-> Union[CustomerInfoModel, CustomErrorModel]:
+    def customer_info(self, organization_id: str, identifier: str, type: str, timeout=BaseAPI.DEFAULT_TIMEOUT) -> Union[
+        CustomerInfoModel, CustomErrorModel]:
         """
 
         :param organization_id:
@@ -1690,6 +1835,7 @@ class Customers(BaseAPI):
             raise PostException(self.__class__.__qualname__,
                                 self.customer_create_or_update.__name__,
                                 f"Не удалось: \n{err}")
+
     def customer_program_add(
         self,
         customer_id: str,
@@ -1751,6 +1897,7 @@ class Customers(BaseAPI):
             raise PostException(self.__class__.__qualname__,
                                 self.customer_card_add.__name__,
                                 f"Не удалось: \n{err}")
+
     def customer_card_delete(
         self,
         customer_id: str,
@@ -1780,6 +1927,7 @@ class Customers(BaseAPI):
             raise PostException(self.__class__.__qualname__,
                                 self.customer_card_delete.__name__,
                                 f"Не удалось: \n{err}")
+
     def customer_wallet_hold(
         self,
         customer_id: str,
@@ -1787,14 +1935,14 @@ class Customers(BaseAPI):
         sum: Union[int, float],
         organization_id: str,
         transaction_id: Optional[str] = None,
-        comment: Optional[str]= None,
+        comment: Optional[str] = None,
         timeout=BaseAPI.DEFAULT_TIMEOUT
     ):
 
         data = {
             "customerId": customer_id,
             "walletId": wallet_id,
-            "sum":sum,
+            "sum": sum,
             "organizationId": organization_id,
         }
         if transaction_id is not None:
@@ -1818,6 +1966,7 @@ class Customers(BaseAPI):
             raise PostException(self.__class__.__qualname__,
                                 self.customer_wallet_hold.__name__,
                                 f"Не удалось: \n{err}")
+
     def customer_wallet_cancel_hold(
         self,
         organization_id: str,
@@ -1846,13 +1995,14 @@ class Customers(BaseAPI):
             raise PostException(self.__class__.__qualname__,
                                 self.customer_wallet_cancel_hold.__name__,
                                 f"Не удалось: \n{err}")
+
     def customer_wallet_topup(
         self,
         customer_id: str,
         wallet_id: str,
         sum: Union[int, float],
         organization_id: str,
-        comment: Optional[str]=None,
+        comment: Optional[str] = None,
         timeout=BaseAPI.DEFAULT_TIMEOUT
     ):
         """
@@ -1868,7 +2018,7 @@ class Customers(BaseAPI):
         """
 
         data = {
-            "customerId":customer_id,
+            "customerId": customer_id,
             "walletId": wallet_id,
             "sum": sum,
             "organizationId": organization_id,
@@ -1898,7 +2048,7 @@ class Customers(BaseAPI):
         wallet_id: str,
         sum: Union[int, float],
         organization_id: str,
-        comment: Optional[str]=None,
+        comment: Optional[str] = None,
         timeout=BaseAPI.DEFAULT_TIMEOUT
     ):
         """
@@ -1914,7 +2064,7 @@ class Customers(BaseAPI):
         """
 
         data = {
-            "customerId":customer_id,
+            "customerId": customer_id,
             "walletId": wallet_id,
             "sum": sum,
             "organizationId": organization_id,
@@ -1939,9 +2089,6 @@ class Customers(BaseAPI):
                                 f"Не удалось: \n{err}")
 
 
-
-
-
 class IikoTransport(Orders, Deliveries, Employees, Address, DeliveryRestrictions, TerminalGroup, Menu, Dictionaries,
-                    DiscountPromotion, Commands, Notifications, Customers,WebHook):
+                    DiscountPromotion, Commands, Notifications, Customers, WebHook):
     pass
