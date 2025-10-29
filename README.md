@@ -54,6 +54,44 @@ Example
     # получаю список курьеров организации
     couriers: CouriersModel = api.couriers(api.organizations_ids)
 
+Пример валидации WebHook событий
+============
+    from pyiikocloudapi.models import WebHookDeliveryOrderEventInfoModel
+
+    # Пример данных WebHook события
+    data = {
+        "eventType": "DeliveryOrderUpdate",
+        "eventTime": "2019-08-24 14:15:22.123",
+        "organizationId": "7bc05553-4b68-44e8-b7bc-37be63c6d9e9",
+        "correlationId": "48fb4cd3-2ef6-4479-bea1-7c92721b988c",
+        "eventInfo": {
+            "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+            "posId": "7f542382-3a91-4db8-938e-e9f86b88057c",
+            "externalNumber": "string",
+            "organizationId": "7bc05553-4b68-44e8-b7bc-37be63c6d9e9",
+            "timestamp": 1566650122,
+            "creationStatus": "Success",
+            "errorInfo": None,
+            "order": {
+                # ... данные заказа
+            }
+        }
+    }
+
+    # Валидация данных WebHook
+    webhook_event = WebHookDeliveryOrderEventInfoModel.model_validate(data)
+    
+    # Доступ к данным после валидации
+    print(webhook_event.event_type)  # "DeliveryOrderUpdate"
+    print(webhook_event.organization_id)  # "7bc05553-4b68-44e8-b7bc-37be63c6d9e9"
+    
+    # В зависимости от event_type, event_info будет разного типа:
+    # - DeliveryOrderUpdate -> EventInfo
+    # - StopListUpdate -> EventInfoStopList
+    # - TableOrderError -> EventInfoTableOrder
+    # - ReserveUpdate / ReserveError -> EventInfoReserve
+    # - PersonalShift -> EventInfoPersonalShift
+
 Каждый метод проверяет время жизни маркера доступа, если время жизни маркера прошло то будет автоматически запрошен заново.
 
 **Время жизни маркера доступа равно ~60 минутам.**

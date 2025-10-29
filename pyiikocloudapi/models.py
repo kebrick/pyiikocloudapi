@@ -1207,6 +1207,7 @@ class ErrorInfo(BaseModel):
     code: str
     message: Optional[str] = None
     additional_data: Optional[Any] = Field(None, alias="additionalData")
+    error_reason: Optional[str] = Field(None, alias="errorReason")
 
 
 class ExternalData(BaseModel):
@@ -1247,15 +1248,185 @@ class WHDeliveryOrder(CreatedDeliveryOrderModel):
     external_data: Optional[List[ExternalData]] = Field(None, alias="externalData")
 
 
+# Models for TableOrder
+class OrderItemComboInformationTableModel(OrderItemComboInformationModel):
+    group_name: Optional[str] = Field(None, alias="groupName")
+
+
+class CombosItemTableOrderModel(CombosItemOrderModel):
+    size: Optional[IdNameModel] = None
+
+
+class PaymentItemTableOrderModel(PaymentItemOrderModel):
+    is_prepay: Optional[bool] = Field(None, alias="isPrepay")
+
+
+class TipsItemTableOrderModel(TipsItemOrderModel):
+    is_prepay: Optional[bool] = Field(None, alias="isPrepay")
+
+
+class SelectivePositionWithSumModel(BaseModel):
+    position_id: str = Field(alias="positionId")
+    sum: float
+
+
+class DiscountsItemTableOrderModel(DiscountsItemOrderModel):
+    selective_positions_with_sum: Optional[List[SelectivePositionWithSumModel]] = Field(
+        None, alias="selectivePositionsWithSum"
+    )
+
+
+class OrderProductItemTableModel(BaseModel):
+    type: str
+    status: str
+    deleted: Optional[OrderItemDeletedModel] = None
+    amount: float
+    comment: Optional[str] = None
+    when_printed: Optional[str] = Field(None, alias="whenPrinted")
+    size: Optional[IdNameModel] = None
+    combo_information: Optional[OrderItemComboInformationTableModel] = Field(None, alias="comboInformation")
+
+
+class SplitOrderBetweenCashRegisters(str, Enum):
+    disabled = "Disabled"
+    enabled = "Enabled"
+    enabledByTable = "EnabledByTable"
+
+
+class WHTableOrder(BaseModel):
+    table_ids: Optional[List[str]] = Field(None, alias="tableIds")
+    customer: Optional[CustomerModel] = None
+    phone: Optional[str] = None
+    status: str
+    when_created: str = Field(alias="whenCreated")
+    waiter: Optional[OrderDetailWaiterModel] = None
+    tab_name: Optional[str] = Field(None, alias="tabName")
+    split_order_between_cash_registers: Optional[SplitOrderBetweenCashRegisters] = Field(
+        None, alias="splitOrderBetweenCashRegisters"
+    )
+    menu_id: Optional[str] = Field(None, alias="menuId")
+    price_category: Optional[IdNameModel] = Field(None, alias="priceCategory")
+    sum: float
+    number: int
+    source_key: Optional[str] = Field(None, alias="sourceKey")
+    when_bill_printed: Optional[str] = Field(None, alias="whenBillPrinted")
+    when_closed: Optional[str] = Field(None, alias="whenClosed")
+    conception: Optional[ConceptionOrderModel] = None
+    guests_info: GuestsInfoOrderModel = Field(alias="guestsInfo")
+    items: List[OrderProductItemTableModel]
+    combos: Optional[List[CombosItemTableOrderModel]] = None
+    payments: Optional[List[PaymentItemTableOrderModel]] = None
+    tips: Optional[List[TipsItemTableOrderModel]] = None
+    discounts: Optional[List[DiscountsItemTableOrderModel]] = None
+    order_type: Optional[CDOrderTypeModel] = Field(None, alias="orderType")
+    terminal_group_id: str = Field(alias="terminalGroupId")
+    processed_payments_sum: Optional[int] = Field(None, alias="processedPaymentsSum")
+    loyalty_info: Optional[LoyaltyInfoModel] = Field(None, alias="loyaltyInfo")
+    external_data: Optional[List[ExternalData]] = Field(None, alias="externalData")
+
+
+class TerminalGroupStopListsEventInfoModel(BaseModel):
+    id: Optional[str] = Field(None, alias="id")
+    is_full: Optional[bool] = Field(None, alias="isFull")
+
+class EventInfoStopList(BaseModel):
+    terminal_groups_stop_lists_updates: Optional[List[TerminalGroupStopListsEventInfoModel]] = Field(
+        None, alias="terminalGroupsStopListsUpdates"
+    )
+
 class EventInfo(BaseModel):
-    id: str
+    id: str = Field("", alias="id")
     pos_id: Optional[str] = Field(None, alias="posId")
     external_number: Optional[str] = Field(None, alias="externalNumber")
     organization_id: str = Field("", alias="organizationId")
-    timestamp: int
+    timestamp: Optional[int] = Field(None, alias="timestamp")
     creation_status: str = Field("", alias="creationStatus")
     error_info: Optional[ErrorInfo] = Field(None, alias="errorInfo")
-    order: Optional[WHDeliveryOrder]
+    order: Optional[WHDeliveryOrder] = Field(None, alias="order")
+
+
+class EventInfoTableOrder(BaseModel):
+    id: str = Field("", alias="id")
+    pos_id: Optional[str] = Field(None, alias="posId")
+    external_number: Optional[str] = Field(None, alias="externalNumber")
+    organization_id: str = Field("", alias="organizationId")
+    timestamp: Optional[int] = Field(None, alias="timestamp")
+    creation_status: str = Field("", alias="creationStatus")
+    error_info: Optional[ErrorInfo] = Field(None, alias="errorInfo")
+    order: Optional[WHTableOrder] = Field(None, alias="order")
+
+
+# Models for Reserve
+class ReserveCustomerModel(BaseModel):
+    type: Optional[str] = None
+
+
+class ReserveStatus(str, Enum):
+    new = "New"
+    confirmed = "Confirmed"
+    cancelled = "Cancelled"
+    started = "Started"
+    closed = "Closed"
+
+
+class CancelReason(str, Enum):
+    client_not_appeared = "ClientNotAppeared"
+    other = "Other"
+
+
+class ReserveOrderModel(BaseModel):
+    menu_id: Optional[str] = Field(None, alias="menuId")
+    sum: float
+    number: int
+    source_key: Optional[str] = Field(None, alias="sourceKey")
+    when_bill_printed: Optional[str] = Field(None, alias="whenBillPrinted")
+    when_closed: Optional[str] = Field(None, alias="whenClosed")
+    conception: Optional[ConceptionOrderModel] = None
+    guests_info: GuestsInfoOrderModel = Field(alias="guestsInfo")
+    items: List[OrderProductItemTableModel]
+    combos: Optional[List[CombosItemTableOrderModel]] = None
+    payments: Optional[List[PaymentItemTableOrderModel]] = None
+    tips: Optional[List[TipsItemTableOrderModel]] = None
+    discounts: Optional[List[DiscountsItemTableOrderModel]] = None
+    order_type: Optional[CDOrderTypeModel] = Field(None, alias="orderType")
+    terminal_group_id: str = Field(alias="terminalGroupId")
+    processed_payments_sum: Optional[int] = Field(None, alias="processedPaymentsSum")
+    loyalty_info: Optional[LoyaltyInfoModel] = Field(None, alias="loyaltyInfo")
+    external_data: Optional[List[ExternalData]] = Field(None, alias="externalData")
+
+
+class ReserveModel(BaseModel):
+    customer: Optional[ReserveCustomerModel] = None
+    guests_count: int = Field(alias="guestsCount")
+    comment: Optional[str] = None
+    duration_in_minutes: int = Field(alias="durationInMinutes")
+    should_remind: bool = Field(alias="shouldRemind")
+    status: Optional[str] = None
+    cancel_reason: Optional[str] = Field(None, alias="cancelReason")
+    table_ids: Optional[List[str]] = Field(None, alias="tableIds")
+    estimated_start_time: Optional[str] = Field(None, alias="estimatedStartTime")
+    guests_coming_time: Optional[str] = Field(None, alias="guestsComingTime")
+    phone: Optional[str] = None
+    event_type: Optional[str] = Field(None, alias="eventType")
+    order: Optional[ReserveOrderModel] = None
+
+
+class EventInfoReserve(BaseModel):
+    id: str = Field("", alias="id")
+    external_number: Optional[str] = Field(None, alias="externalNumber")
+    organization_id: str = Field("", alias="organizationId")
+    timestamp: Optional[int] = Field(None, alias="timestamp")
+    creation_status: str = Field("", alias="creationStatus")
+    error_info: Optional[ErrorInfo] = Field(None, alias="errorInfo")
+    is_deleted: bool = Field(alias="isDeleted")
+    reserve: Optional[ReserveModel] = None
+
+
+class EventInfoPersonalShift(BaseModel):
+    id: str = Field("", alias="id")
+    role_id: str = Field("", alias="roleId")
+    opened: bool
+    terminal_group_id: str = Field("", alias="terminalGroupId")
 
 
 class WebHookDeliveryOrderEventInfoModel(BaseModel):
@@ -1263,4 +1434,4 @@ class WebHookDeliveryOrderEventInfoModel(BaseModel):
     event_time: Optional[datetime] = Field(None, alias="eventTime")
     organization_id: str = Field("", alias="organizationId")
     correlation_id: str = Field("", alias="correlationId")
-    event_info: Optional[EventInfo] = Field(None, alias="eventInfo")
+    event_info: Optional[Union[EventInfo, EventInfoStopList, EventInfoTableOrder, EventInfoReserve, EventInfoPersonalShift]] = Field(None, alias="eventInfo")
