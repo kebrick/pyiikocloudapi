@@ -27,6 +27,11 @@ class CustomErrorModel(ErrorModel):
     status_code: Optional[str] = None
 
 
+class ExternalDataModel(BaseModel):
+    key: str
+    value: str
+
+
 class OrganizationModel(IdNameModel):
     class ResponseTypeEnum(str, Enum):
         simple = "Simple"
@@ -37,6 +42,16 @@ class OrganizationModel(IdNameModel):
         city = "City"
         international = "International"
         int_no_postcode = "IntNoPostcode"
+
+    class DeliveryOrderPaymentSettingsEnum(str, Enum):
+        when_order_on_the_way = "WhenOrderOnTheWay"
+        when_order_closed = "WhenOrderClosed"
+
+    class AddressLookupEnum(str, Enum):
+        da_data = "DaData"
+        get_address = "GetAddress"
+        ya = "Ya"
+        google_places = "GooglePlaces"
 
     country: Optional[str] = None
     restaurant_address: Optional[str] = Field(None, alias="restaurantAddress")
@@ -51,13 +66,19 @@ class OrganizationModel(IdNameModel):
     default_delivery_city_id: Optional[str] = Field(None, alias="defaultDeliveryCityId")
     delivery_city_ids: Optional[List[str]] = Field(None, alias="deliveryCityIds")
     delivery_service_type: Optional[str] = Field(None, alias="deliveryServiceType")
+    delivery_order_payment_settings: Optional[DeliveryOrderPaymentSettingsEnum] = Field(None, alias="deliveryOrderPaymentSettings")
     default_call_center_payment_type_id: Optional[str] = Field(None, alias="defaultCallCenterPaymentTypeId")
     order_item_comment_enabled: Optional[bool] = Field(None, alias="orderItemCommentEnabled")
     inn: Optional[str] = None
     addressFormatType: Optional[OAddressFormatTypeEnum] = Field(None, alias="addressFormatType")
     is_confirmation_enabled: Optional[bool] = Field(None, alias="isConfirmationEnabled")
     confirm_allowed_interval_in_minutes: Optional[int] = Field(None, alias="confirmAllowedIntervalInMinutes")
+    is_cloud: bool = Field(alias="isCloud")
+    is_anonymous_guests_allowed: Optional[bool] = Field(None, alias="isAnonymousGuestsAllowed")
+    address_lookup: List[AddressLookupEnum] = Field(alias="addressLookup")
     response_type: ResponseTypeEnum = Field(alias="responseType")
+    code: Optional[str] = None
+    external_data: Optional[List[ExternalDataModel]] = Field(None, alias="externalData")
 
     def __str__(self):
         return self.name

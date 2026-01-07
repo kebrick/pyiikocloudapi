@@ -225,12 +225,12 @@ class BaseAPI:
                 self.logger.debug(f"{err=}")
         response_data: dict = json.loads(response.content)
         self.__last_data = response_data
-        if self.__return_dict:
-            return response_data
         if response_data.get("errorDescription", None) is not None:
             error_model = model_error.parse_obj(response_data)
             error_model.status_code = response.status_code
             return error_model
+        if self.__return_dict:
+            return response_data
         if model_response_data is not None:
             return model_response_data.parse_obj(response_data)
         del self.timeout
@@ -275,7 +275,7 @@ class BaseAPI:
             if isinstance(response_data, BaseOrganizationsModel):
                 self.__convert_org_data(data=response_data)
             if self.return_dict:
-                self.organizations_ids=[org.get('id') for org in response_data.get("organizations", {})]
+                self.__organizations_ids=(org.get('id') for org in response_data.get("organizations", {}))
             return response_data
 
 
@@ -1153,7 +1153,7 @@ class Deliveries(BaseAPI):
                             f"Не удалось создать заказ из за: \n{err}")
 
     def update_order_delivery_status(self,
-                                     organization_id: List[str],
+                                     organization_id: str,
                                      order_id: str,
                                      delivery_status: str = "Delivered",
                                      delivery_date: datetime = datetime.now(), timeout=BaseAPI.DEFAULT_TIMEOUT
@@ -1170,7 +1170,7 @@ class Deliveries(BaseAPI):
         if not isinstance(delivery_date, datetime):
             raise TypeError("delivery_date != datetime")
         data = {
-            "organizationIds": organization_id,
+            "organizationId": organization_id,
             "orderId": order_id,
             "deliveryStatus": delivery_status,
         }
