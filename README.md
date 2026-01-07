@@ -2,6 +2,12 @@
 
 ![](https://www.python.org/static/img/python-logo.png) 
 
+## Другие реализации
+
+Также доступны реализации для других языков программирования:
+
+Go: [goiikoapi](https://github.com/kebrick/goiikoapi) — реализация iiko Cloud API на языке Go
+
 Установка
 ============
 
