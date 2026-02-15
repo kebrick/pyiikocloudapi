@@ -2,7 +2,7 @@ from setuptools import setup
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
-VERSION = '0.0.30'
+VERSION = '0.0.31'
 setup(
     name='pyiikocloudapi',
     version=VERSION,
@@ -13,7 +13,7 @@ setup(
     # packages=find_packages(where="src"),
     # package_dir={"": "src"},
     author='kebrick',
-    author_email='ruban.kebr@gmail.com',
+    author_email='tvari.bobro@yandex.ru',
     license='MIT',
     project_urls={
         'Source': 'https://github.com/kebrick/pyiikocloupapi',

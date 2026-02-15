@@ -2,12 +2,17 @@ from decimal import Decimal
 from enum import Enum
 from typing import Optional, List, Union, Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class IdNameModel(BaseModel):
     id: str
     name: str
+
+    @field_validator("id", mode="before")
+    @classmethod
+    def _id_to_str(cls, value: Any) -> str:
+        return str(value)
 
     def __str__(self):
         return self.name
@@ -15,7 +20,6 @@ class IdNameModel(BaseModel):
 
 class BaseResponseModel(BaseModel):
     correlation_id: Optional[str] = Field(None, alias='correlationId')
-
 
 
 class ErrorModel(BaseResponseModel):
@@ -73,9 +77,9 @@ class OrganizationModel(IdNameModel):
     addressFormatType: Optional[OAddressFormatTypeEnum] = Field(None, alias="addressFormatType")
     is_confirmation_enabled: Optional[bool] = Field(None, alias="isConfirmationEnabled")
     confirm_allowed_interval_in_minutes: Optional[int] = Field(None, alias="confirmAllowedIntervalInMinutes")
-    is_cloud: bool = Field(alias="isCloud")
+    is_cloud: Optional[bool] = Field(None, alias="isCloud")
     is_anonymous_guests_allowed: Optional[bool] = Field(None, alias="isAnonymousGuestsAllowed")
-    address_lookup: List[AddressLookupEnum] = Field(alias="addressLookup")
+    address_lookup: Optional[List[AddressLookupEnum]] = Field(None, alias="addressLookup")
     response_type: ResponseTypeEnum = Field(alias="responseType")
     code: Optional[str] = None
     external_data: Optional[List[ExternalDataModel]] = Field(None, alias="externalData")
@@ -848,7 +852,7 @@ class MBIdICISIMGItemModel(BaseModel):
     description: str
     button_image: str = Field(alias='buttonImage')
     restrictions: MBIdICISIMGRestrictionModel
-    allergen_groups: List[ICIAllergenGroupModel] = Field(alias='allergenGroups')
+    allergen_groups: Optional[List[ICIAllergenGroupModel]] = Field(None, alias='allergenGroups')
     nutrition_per_hundred_grams: dict = Field(alias='nutritionPerHundredGrams')
     portion_weight_grams: float = Field(alias='portionWeightGrams')
     tags: List[IdNameModel]
@@ -876,7 +880,7 @@ class MBIdICItemSizeModel(BaseModel):
     portion_weight_grams: float = Field(alias='portionWeightGrams')
     size_id: str = Field(alias='sizeId')
     nutrition_per_hundred_grams: dict = Field(alias='nutritionPerHundredGrams')
-    button_image_url: str = Field(alias="buttonImageUrl")
+    button_image_url: Optional[str] = Field(None, alias="buttonImageUrl")
     button_image_cropped_url: str = Field(alias="buttonImageCroppedUrl")
 
 
@@ -884,12 +888,12 @@ class MBIdICItemModel(BaseModel):
     sku: str
     name: str
     description: str
-    allergen_groups: List[ICIAllergenGroupModel] = Field(alias='allergenGroups')
+    allergen_groups: Optional[List[ICIAllergenGroupModel]] = Field(None, alias='allergenGroups')
     item_id: str = Field(alias='itemId')
-    modofier_schema_id: str = Field(alias='modofierSchemaId')
-    tax_category: MBIdICTaxCategoryModel
-    order_item_type: str
-    item_sizes: List[MBIdICItemSizeModel]
+    modifier_schema_id: Optional[str] = Field(None, alias='modifierSchemaId')
+    tax_category: Optional[MBIdICTaxCategoryModel] = None
+    order_item_type: Optional[str] = None
+    item_sizes: Optional[List[MBIdICItemSizeModel]] = None
 
     def __str__(self):
         return self.name
@@ -897,14 +901,14 @@ class MBIdICItemModel(BaseModel):
 
 class MBIdItemCategoryModel(IdNameModel):
     description: str
-    button_image_url: str = Field(alias="buttonImageUrl")
-    header_image_url: str = Field(alias="headerImageUrl")
+    button_image_url: Optional[str] = Field(None, alias="buttonImageUrl")
+    header_image_url: Optional[str] = Field(None, alias="headerImageUrl")
     items: List[MBIdICItemModel]
 
 
 class BaseMenuByIdModel(IdNameModel):
     description: str
-    item_categories: List[MBIdItemCategoryModel] = Field(alias="itemCategories")
+    item_categories: Optional[List[MBIdItemCategoryModel]] = Field(None, alias="itemCategories")
 
 
 # Cancel Causes
