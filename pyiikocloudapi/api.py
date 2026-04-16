@@ -18,12 +18,27 @@ class BaseAPI:
 
     # __BASE_URL = "https://api-ru.iiko.services"
 
-    def __init__(self, api_login: str, session: Optional[requests.Session] = None, debug: bool = False,
-                 base_url: str = None, working_token: str = None, base_headers: dict = None, logger: Optional[
-            logging.Logger] = None, return_dict: bool = False, *args, **kwargs):
+    def __init__(
+            self,
+            api_login: str,
+            app_id: Optional[str] = None,
+            client_secret: Optional[str] = None,
+            session: Optional[requests.Session] = None,
+            debug: bool = False,
+            base_url: str = None,
+            working_token: str = None,
+            base_headers: dict = None,
+            logger: Optional[
+            logging.Logger] = None,
+            return_dict: bool = False,
+            *args,
+            **kwargs,
+    ):
         """
 
         :param api_login: login api iiko cloud
+        :param app_id: unique integration application id
+        :param client_secret: client secret for integration application
         :param session: session object
         :param debug: logging dict response
         :param base_url: url iiko cloud api
@@ -39,6 +54,8 @@ class BaseAPI:
             self.__session = requests.Session()
 
         self.__api_login = api_login
+        self.__app_id = app_id
+        self.__client_secret = client_secret
         self.__token: Optional[str] = None
         self.__debug = debug
         self.__time_token: Optional[date] = None
@@ -54,10 +71,6 @@ class BaseAPI:
             "Timeout": "45",
         } if base_headers is None else base_headers
         self.__set_token(working_token) if working_token is not None else self.__get_access_token()
-        # if working_token is not None:
-        #     self.__set_token(working_token)
-        # else:
-        #     self.__get_access_token()
         self.__last_data = None
 
     def check_status_code_token(self, code: Union[str, int]):
@@ -127,6 +140,14 @@ class BaseAPI:
         return self.__api_login
 
     @property
+    def app_id(self) -> str:
+        return self.__app_id
+
+    @property
+    def client_secret(self) -> str:
+        return self.__client_secret
+
+    @property
     def token(self) -> str:
         return self.__token
 
@@ -181,9 +202,18 @@ class BaseAPI:
 
     def access_token(self):
         """Получить маркер доступа"""
-        data = json.dumps({"apiLogin": self.api_login})
+        if self.app_id and self.client_secret:
+            api_endpoint = "/api/v2/access_token"
+            data = json.dumps({
+                'apiLogin': self.api_login,
+                'appId': self.app_id,
+                'clientSecret': self.client_secret,
+            })
+        else:
+            api_endpoint = "/api/1/access_token"
+            data = json.dumps({"apiLogin": self.api_login})
         try:
-            result = self.session_s.post(f'{self.__base_url}/api/1/access_token', json=data)
+            result = self.session_s.post(f'{self.__base_url}{api_endpoint}', json=data)
 
             response_data: dict = json.loads(result.content)
             if response_data.get("errorDescription", None) is not None:
